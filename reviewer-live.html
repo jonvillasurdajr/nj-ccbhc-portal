@@ -149,7 +149,7 @@ function atGet(table, filter, callback) {
   var sheetType = table === 'Scores' ? 'Scores' : 'Applications';
   fetch(GOOGLE_SCRIPT_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify({ sheetType: sheetType, filterByFormula: filter, pageSize: 100 })
   })
     .then(function(r) { return r.json(); })
@@ -198,7 +198,7 @@ function renderQueue() {
   for (var j = 0; j < allApps.length; j++) {
     var r = allApps[j];
     var d2 = tryParse(r['Submission JSON']);
-    var appId = (d2 && d2.application_id) ? d2.application_id : r.id;
+    var appId = (d2 && d2.application_id) ? d2.application_id : r['ID'];
     if (!scoredIds[appId]) pending.push(r);
   }
 
@@ -274,7 +274,7 @@ function launchScoring(recordId) {
   if (current.indexOf('review') === -1) {
     fetch(GOOGLE_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ sheetType: 'Applications', id: recordId, fields: { 'Status': 'Under Review' } })
     }).catch(function() {});
   }

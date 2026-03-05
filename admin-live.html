@@ -150,18 +150,16 @@ function sheetTypeFromTable(table){ return table==='Applications'?'Applications'
 let allApps=[],allNAs=[],allScores=[];
 
 async function atFetch(table){
-  const sheetType=table==='Applications'?'Applications':table==='Needs Assessment'?'NeedsAssessments':'Scores';
-  const url=GOOGLE_SCRIPT_URL+'?sheetType='+sheetType+'&pageSize=200';
-  const r=await fetch(url);
+  const sheetType=sheetTypeFromTable(table);
+  const r=await fetch(GOOGLE_SCRIPT_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({sheetType:sheetType,action:'GET_RECORDS',pageSize:200})
+  });
   const d=await r.json();
   return d.records||[];
-},body:JSON.stringify({sheetType,pageSize:100,offset:offset||undefined})});
-    const d=await r.json();
-    if(d.records) records=[...records,...d.records];
-    offset=d.offset||null;
-  }while(offset);
-  return records;
 }
+
 
 async function loadAll(){
   try{
@@ -193,9 +191,9 @@ function renderOverview(){
 
   // Recent activity - last 10 combined
   const all=[
-    ...allApps.map(r=>{return{name:r['Clinic Name']||'Unknown',date:r['Submitted At']||'',type:'Application',status:r['Status']||'Submitted',id:r.id}}),
-    ...allNAs.map(r=>{return{name:r['Clinic Name']||r['na_agency_name']||'Unknown',date:r['Submitted At']||r['na_assessment_date']||'',type:'Needs Assessment',status:r['Status']||'Submitted',id:r.id}}),
-    ...allScores.map(r=>{return{name:r['Clinic Name']||'Unknown',date:r['Review Date']||'',type:'Score Review',status:r['Cert Status']||'-',id:r.id}})
+    ...allApps.map(r=>{return{name:r['Clinic Name']||'Unknown',date:r['Submitted At']||'',type:'Application',status:r['Status']||'Submitted',id:r['ID']}}),
+    ...allNAs.map(r=>{return{name:r['Clinic Name']||r['na_agency_name']||'Unknown',date:r['Submitted At']||r['na_assessment_date']||'',type:'Needs Assessment',status:r['Status']||'Submitted',id:r['ID']}}),
+    ...allScores.map(r=>{return{name:r['Clinic Name']||'Unknown',date:r['Review Date']||'',type:'Score Review',status:r['Cert Status']||'-',id:r['ID']}})
   ].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,10);
 
   document.getElementById('overview-recent').innerHTML=all.length?`<table>
@@ -228,7 +226,7 @@ function renderApps(){
           <option value="Laura Henry" ${f['Assigned Reviewer']==='Laura Henry'?'selected':''}>Laura Henry (Mercer)</option>
           <option value="Jon Villasurda Jr." ${f['Assigned Reviewer']==='Jon Villasurda Jr.'?'selected':''}>Jon Villasurda Jr. (Mercer)</option>
         </select></td>
-        <td><button class="btn btn-navy btn-sm" onclick="showDetail('${r.id}','app')">View</button></td>
+        <td><button class="btn btn-navy btn-sm" onclick="showDetail('${r['ID']}','app')">View</button></td>
       </tr>`;
     }).join('')}</tbody></table>`:'<div class="empty">No applications submitted yet.</div>';
 }
@@ -245,7 +243,7 @@ function renderNAs(){
         <td><select class="st-select" onchange="updateField('Needs Assessment','${r['ID']}','Status',this.value)">
           ${['Submitted','Under Review','Accepted','Revision Requested'].map(s=>`<option${(f['Status']||'')==s?' selected':''}>${s}</option>`).join('')}
         </select></td>
-        <td><button class="btn btn-teal btn-sm" onclick="showDetail('${r.id}','na')">View</button></td>
+        <td><button class="btn btn-teal btn-sm" onclick="showDetail('${r['ID']}','na')">View</button></td>
       </tr>`;
     }).join('')}</tbody></table>`:'<div class="empty">No needs assessments submitted yet.</div>';
 }
@@ -266,7 +264,7 @@ function renderScores(){
           <span style="font-weight:700;color:var(--g700)">${pct}%</span>
         </div></td>
         <td>${statusBadge(f['Cert Status']||'-','score')}</td>
-        <td><button class="btn btn-navy btn-sm" onclick="showDetail('${r.id}','score')">Detail</button></td>
+        <td><button class="btn btn-navy btn-sm" onclick="showDetail('${r['ID']}','score')">Detail</button></td>
       </tr>`;
     }).join('')}</tbody></table>`:'<div class="empty">No score reviews recorded yet.</div>';
 }
@@ -292,7 +290,7 @@ async function updateField(table,id,field,value){
 }
 
 function showDetail(id,type){
-  const rec=(type==='app'?allApps:type==='na'?allNAs:allScores).find(r=>r.id===id);
+  const rec=(type==='app'?allApps:type==='na'?allNAs:allScores).find(r=>r['ID']===id);
   if(!rec)return;
   const f=rec.fields;
   const title=(f['Clinic Name']||f['na_agency_name']||'Record')+' - '+(type==='app'?'Application':type==='na'?'Needs Assessment':'Score Review');
