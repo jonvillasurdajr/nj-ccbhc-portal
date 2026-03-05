@@ -119,12 +119,12 @@ async function handleSubmit(){
   btn.disabled=true; btn.textContent='Submitting\u2026';
   try{
     const GOOGLE_SCRIPT_URL='https://script.google.com/macros/s/AKfycbyxVkIFhA0i1pffZ-Z88jjLOmCttxquusVJkyDjq4Fp8GIc5kGF10IE_kxEgu_Rgi3S/exec';
-    const _r=await fetch(GOOGLE_SCRIPT_URL,{
+    await fetch(GOOGLE_SCRIPT_URL,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'text/plain'},
+      mode:'no-cors',
       body:JSON.stringify({sheetType:'NeedsAssessments',fields:{'Clinic Name':d.na_agency_name||'','Submitted At':d.submitted_at,'Status':'Received','Submission JSON':JSON.stringify(d)}}) 
     });
-    if(!_r.ok) throw new Error('Submit '+_r.status);
     downloadJSON(d); clearDraft(); showModal(d);
   }
   catch(e){ toast('\u274C Submission failed \u2014 please try again'); }
@@ -269,7 +269,7 @@ function addStaffingRow(){
   tr.innerHTML='<td><input type="text" name="staff_role[]" placeholder="Role title"></td><td><input type="text" name="staff_sites[]" placeholder="Sites"></td><td><input type="number" name="staff_needed[]" min="0" style="width:55px"></td><td><input type="number" name="staff_filled[]" min="0" style="width:55px"></td><td><input type="number" name="staff_vacant[]" min="0" style="width:55px"></td><td><select name="staff_recruiting[]" style="min-width:80px"><option value="">-</option><option>Yes</option><option>No</option></select></td><td><input type="text" name="staff_interim[]" placeholder="e.g., Consultant"></td><td><input type="text" name="staff_comments[]" placeholder="Notes"></td><td><button type="button" class="btn-rem" onclick="removeRow(this)">Remove</button></td>';
   tbody.appendChild(tr);
 }
-// TODO (State/internal): Auto-populate from Census ACS, SAMHSA, CDC - planned future feature.
+// TODO (State/internal): Auto-populate from Census/SAMHSA/CDC - planned future feature.
 function loadPublicData(){}
 
 window.addEventListener('beforeunload',e=>{ if(localStorage.getItem(DK2)){e.preventDefault();e.returnValue='';} });
