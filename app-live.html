@@ -153,7 +153,7 @@ function initNav(){
 }
 function goTo(id){ const el=document.getElementById('sec-'+id); if(el)el.scrollIntoView({behavior:'smooth',block:'start'}); }
 
-async async function handleSubmit(){
+async function handleSubmit(){
   const d=collect(); const errs=validate(d);
   const banner=document.getElementById('errbanner');
   if(errs.length){
@@ -166,12 +166,12 @@ async async function handleSubmit(){
   btn.disabled=true; btn.textContent='Submitting\u2026';
   try{
     const GOOGLE_SCRIPT_URL='https://script.google.com/macros/s/AKfycbyxVkIFhA0i1pffZ-Z88jjLOmCttxquusVJkyDjq4Fp8GIc5kGF10IE_kxEgu_Rgi3S/exec';
-    await fetch(GOOGLE_SCRIPT_URL,{
+    const _r=await fetch(GOOGLE_SCRIPT_URL,{
       method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({sheetType:'Applications',fields:{'Clinic Name':d.agency_name||'','Submitted At':d.submitted_at,'Status':'Received','Submission JSON':JSON.stringify(d)}})
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({sheetType:'Applications',fields:{'Clinic Name':d.agency_name||'','Submitted At':d.submitted_at,'Status':'Received','Submission JSON':JSON.stringify(d)}}) 
     });
+    if(!_r.ok) throw new Error('Submit '+_r.status);
     downloadJSON(d); clearDraft(); showModal(d);
   }
   catch(e){ toast('\u274C Submission failed \u2014 please try again'); }
@@ -254,4 +254,111 @@ function trackProgress(){
   form.addEventListener('input',upd); form.addEventListener('change',upd);
 }
 window.addEventListener('beforeunload',e=>{ if(localStorage.getItem(DK3)){e.preventDefault();e.returnValue='';} });
+
+function loadTestData(){
+  if(!confirm('Load sample test data (Mercer County CCBHC)?')){return;}
+  function setF(nm,val){
+    var el=document.querySelector('[name="'+nm+'"]');
+    if(!el)return;
+    if(el.type==='checkbox'){el.checked=(val==='Yes'||val==='true');}
+    else if(el.tagName==='SELECT'){el.value=val;}
+    else{el.value=val;}
+    el.dispatchEvent(new Event('change'));
+  }
+  setF('application_type','new');
+  setF('cert_start_date','2026-07-01');
+  setF('prior_cert_start_date','');
+  setF('prior_cert_end_date','');
+  setF('prereq_org_status','Yes');
+  setF('prereq_licensure','Yes');
+  setF('prereq_dmhas_contract','Yes');
+  setF('prereq_npi','Yes');
+  setF('prereq_medicaid','Yes');
+  setF('prereq_service_delivery','Yes');
+  setF('prereq_hit','Yes');
+  setF('minreq_federal_state','Yes');
+  setF('minreq_privacy','Yes');
+  setF('minreq_practice_standards','Yes');
+  setF('minreq_ongoing','Yes');
+  setF('eoi_submitted','Yes');
+  setF('eoi_date','2026-01-15');
+  setF('orientation_attended','Yes');
+  setF('agency_name','Mercer County Behavioral Health Alliance');
+  setF('agency_addr1','640 South Broad Street');
+  setF('agency_addr2','Suite 200');
+  setF('agency_city','Trenton');
+  setF('agency_state','NJ');
+  setF('agency_zip','08611');
+  setF('agency_tax_id','22-1234567');
+  setF('agency_npi','1234567890');
+  setF('org_type','Non-profit 501(c)(3)');
+  setF('medicaid_id','NJ-MCD-9876543');
+  setF('ehr_name','Credible Behavioral Health');
+  setF('accreditation_carf','Yes');
+  setF('accreditation_joint','No');
+  setF('accreditation_other','');
+  setF('service_counties[]','Mercer');
+  setF('auth_rep_name','Jonathan Villasurda');
+  setF('auth_rep_title','Director, Division of Mental Health and Addiction Services');
+  setF('auth_rep_email','jon.villasurda@mercer.com');
+  setF('auth_rep_phone','609-555-0100');
+  setF('cfo_name','Maria Santos');
+  setF('cfo_title','Chief Financial Officer');
+  setF('cfo_email','m.santos@mercer.com');
+  setF('cfo_phone','609-555-0101');
+  setF('payer_medicaid','55');
+  setF('payer_medicare','10');
+  setF('payer_private','15');
+  setF('payer_self_pay','8');
+  setF('payer_grant','7');
+  setF('payer_other','5');
+  setF('core_services_mh_adults','Yes');
+  setF('core_services_mh_children','Yes');
+  setF('core_services_sud_adults','Yes');
+  setF('core_services_sud_children','In Progress');
+  setF('core_services_crisis','Yes');
+  setF('core_services_primary_care','In Progress');
+  setF('core_services_case_mgmt','Yes');
+  setF('core_services_peers','Yes');
+  setF('ebp_mi_met','Yes');
+  setF('ebp_tic','Yes');
+  setF('ebp_cbt','Yes');
+  setF('ebp_mat','Yes');
+  setF('ebp_family_therapy','Yes');
+  setF('ebp_wham','In Progress');
+  setF('ebp_zero_suicide','Yes');
+  setF('ebp_gambling','No');
+  setF('ebp_personal_wellness','In Progress');
+  setF('loc_name[][]','Trenton CCBHC Main Site');
+  setF('loc_addr1[][]','640 South Broad Street');
+  setF('loc_addr2[][]','Suite 200');
+  setF('loc_city[][]','Trenton');
+  setF('loc_state[][]','NJ');
+  setF('loc_zip[][]','08611');
+  setF('loc_npi[][]','1234567891');
+  setF('loc_hours[][]','Mon-Fri 8am-8pm, Sat 9am-1pm');
+  setF('loc_services[][]','Outpatient MH');
+  setF('loc_site_action[][]','New Site');
+  setF('gov_type','Governing Board');
+  setF('gov_description','Mercer County Behavioral Health Alliance is governed by a 15-member Board of Directors with consumer and family member representation comprising at least 30% of voting board seats. The Board meets quarterly and includes representatives from county government, healthcare systems, housing, and lived-experience advocates.');
+  setF('dco_partners','Oaks Integrated Care (crisis residential), HomeFront (housing supports), Capital Health (primary care integration), Jewish Family and Children\'s Service (outpatient therapy DCO)');
+  setF('att_cna','Attached - see Needs Assessment submission');
+  setF('att_staffing','Attached - Appendix B Staffing Plan');
+  setF('att_org_chart','Attached');
+  setF('att_mou_dcos','Attached - 4 executed DCO agreements');
+  setF('att_policies','Attached - CCBHC Policy and Procedure Manual v1.0');
+  setF('att_financials','Attached - FY2025 Audited Financial Statements');
+  setF('att_ehr_screen','Attached - Credible BH CCBHC module screenshots');
+  setF('att_accreditation','Attached - CARF accreditation certificate (expires 2027)');
+  setF('attest_name','Jonathan Villasurda');
+  setF('attest_title','Director, Division of Mental Health and Addiction Services');
+  setF('attest_sig','Jonathan Villasurda');
+  setF('attest_date','2026-03-05');
+  setF('attest_agree','Yes');
+  // Trigger prereq/minreq checkboxes
+  document.querySelectorAll('input[name^="prereq_"],input[name^="minreq_"]')
+    .forEach(function(cb){cb.checked=true;cb.dispatchEvent(new Event('change'));});
+  alert('Test data loaded! Review each section, then click Submit Application.');
+}
+
 </script></body></html>
