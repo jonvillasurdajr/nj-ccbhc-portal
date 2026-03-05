@@ -362,23 +362,119 @@ async function exportResults(){
   toast('\u2705 Review exported & saved to DMHAS portal');
 }
 function showSummaryModal(){
-  const labels={"1.a.1": "Community Needs Assessment & Staffing Plan", "1.a.2": "Staff Composition \u2014 Populations Served", "1.a.3": "Management Team \u2014 CEO & Medical Director", "1.a.4": "Liability/Malpractice Insurance", "1.b.1": "Provider Authorization, Licensure & Scope", "1.b.2": "Core Staff \u2014 Prescribers, SUD, Trauma", "1.c.1": "Training Plan", "1.c.2": "Competency Assessment & In-Service Training", "1.c.3": "Training Documentation & EBP Coaching", "1.c.4": "Trainer Qualifications", "1.d.1": "Language Access \u2014 LEP", "1.d.2": "Interpretation/Translation Services", "1.d.3": "Auxiliary Aids & ADA Compliance", "1.d.4": "Client Documents \u2014 Multi-Language & Format", "1.d.5": "Confidentiality & Privacy (HIPAA, 42 CFR Part 2)", "2.a.1": "Physical Environment", "2.a.2": "Operating Hours \u2014 Evenings & Weekends", "2.a.3": "Service Locations \u2014 Community-Based", "2.a.4": "Transportation & Access Vouchers", "2.a.5": "Telehealth & Remote Technologies", "2.a.6": "Outreach & Retention \u2014 Underserved Populations", "2.a.7": "Voluntary & Court-Ordered Standards", "2.a.8": "Continuity of Operations / Disaster Plan", "2.b.1": "Triage, Risk Assessment & Evaluation Timelines", "2.b.2": "Treatment Plan Review (\u22646 Months)", "2.b.3": "Appointment Access \u2014 Routine & Crisis", "2.c.1": "24/7 Crisis Management", "2.c.2": "Crisis Continuum Policies \u2014 Public-Facing", "2.c.3": "Crisis Education \u2014 988 & Advance Directives", "2.c.4": "ED Partnership Protocols", "2.c.5": "Law Enforcement Protocols", "3.a.1": "Care Coordination \u2014 Spectrum of Services", "3.a.2": "Consent & Privacy \u2014 Care Coordination", "3.a.3": "Referral Tracking & Appointment Assistance", "3.a.4": "Crisis Planning & Psychiatric Advance Directives", "3.a.5": "Medication Reconciliation & PDMP", "3.a.6": "Freedom of Provider Choice", "3.a.7": "Benefits Access Assistance (Medicaid etc.)", "3.b.1": "Health IT / EHR System", "3.b.2": "HIT Security & Population Health Management", "3.b.3": "ONC Health IT Certification", "3.b.4": "DCO Privacy & Confidentiality Compliance", "3.b.5": "Care Coordination HIT Improvement Plan (2-Year)", "3.c.1": "FQHC / RHC Partnership", "3.c.2": "Inpatient Psych, OTP & Residential SUD Partnerships", "3.c.3": "Community Partnership (Schools, Justice, Child Welfare, 988)", "3.c.4": "Veterans Affairs Partnership", "3.c.5": "Hospital, ED & Acute Care Partnership (24hr Follow-Up)", "3.d.1": "Person & Family-Centered Treatment Team", "3.d.2": "Interdisciplinary Treatment Team", "3.d.3": "DCO Care Coordination per Treatment Plan", "4.a.1": "Required CCBHC Services \u2014 Full Scope", "4.a.2": "DCO Service Delivery \u2014 All Required Services", "4.a.3": "Grievance Procedures", "4.a.4": "DCO Quality Standards Monitoring", "4.b.1": "Person & Family-Centered Service Delivery (ACA 2402a)", "4.b.2": "Culturally Responsive Care \u2014 Race, Ethnicity, SOGI", "4.c.1": "Crisis Services \u2014 Receiving, Intervention & Stabilization", "5.a.1": "Data Capacity \u2014 Encounter, Outcome & Quality", "5.a.2": "Quality Measure Collection & Reporting", "5.a.3": "Annual Cost Reports", "5.b.1": "CQI Plan \u2014 Annual CCBHC-Wide", "5.b.2": "CQI Plan \u2014 Significant Events Review", "5.b.3": "CQI Plan \u2014 Data-Driven & Health Disparities", "6.a.1": "Organizational Authority \u2014 501(c)(3) / Gov / Tribal", "6.a.2": "Tribal / Urban Indian Outreach Arrangements", "6.a.3": "Independent Annual Financial Audit", "6.b.1": "Governance \u2014 Lived Experience (Option 1 or 2)", "6.b.2": "Governance \u2014 Option 1 (51% Board) / Option 2 (Advisory)", "6.b.3": "Governance \u2014 Governmental/Tribal Exception & Advisory Structure"};
-  let html='<h2 style="color:var(--navy);text-align:center;margin-bottom:8px">Scoring Summary</h2>';
-  if(PARTIAL_SECTIONS.length) html+='<p style="text-align:center;font-size:11px;color:#856404;margin-bottom:8px">⚠️ Section 4 partially loaded (4.a-4.c.1 only) - score reflects loaded criteria only</p>';
+  var labels={
+    "1.a.1":"Community Needs Assessment & Staffing Plan","1.a.2":"Staff Composition - Populations Served",
+    "1.a.3":"Management Team - CEO & Medical Director","1.a.4":"Liability/Malpractice Insurance",
+    "1.b.1":"Provider Authorization, Licensure & Scope","1.b.2":"Core Staff - Prescribers, SUD, Trauma",
+    "1.c.1":"Training Plan","1.c.2":"Competency Assessment & In-Service Training",
+    "1.c.3":"Training Documentation & EBP Coaching","1.c.4":"Trainer Qualifications",
+    "1.d.1":"Language Access - LEP","1.d.2":"Interpretation/Translation Services",
+    "1.d.3":"Auxiliary Aids & ADA Compliance","1.d.4":"Client Documents - Multi-Language & Format",
+    "1.d.5":"Confidentiality & Privacy (HIPAA, 42 CFR Part 2)",
+    "2.a.1":"Physical Environment","2.a.2":"Operating Hours - Evenings & Weekends",
+    "2.a.3":"Service Locations - Community-Based","2.a.4":"Transportation & Access Vouchers",
+    "2.a.5":"Telehealth & Remote Technologies","2.a.6":"Outreach & Retention - Underserved Populations",
+    "2.a.7":"Voluntary & Court-Ordered Standards","2.a.8":"Continuity of Operations / Disaster Plan",
+    "2.b.1":"Triage, Risk Assessment & Evaluation Timelines","2.b.2":"Treatment Plan Review (6 Months)",
+    "2.b.3":"Appointment Access - Routine & Crisis","2.c.1":"24/7 Crisis Management",
+    "2.c.2":"Crisis Continuum Policies - Public-Facing","2.c.3":"Crisis Education - 988 & Advance Directives",
+    "2.c.4":"ED Partnership Protocols","2.c.5":"Law Enforcement Protocols",
+    "3.a.1":"Care Coordination - Spectrum of Services","3.a.2":"Consent & Privacy - Care Coordination",
+    "3.a.3":"Referral Tracking & Appointment Assistance","3.a.4":"Crisis Planning & Psychiatric Advance Directives",
+    "3.a.5":"Medication Reconciliation & PDMP","3.a.6":"Freedom of Provider Choice",
+    "3.a.7":"Benefits Access Assistance (Medicaid etc.)","3.b.1":"Health IT / EHR System",
+    "3.b.2":"HIT Security & Population Health Management","3.b.3":"ONC Health IT Certification",
+    "3.b.4":"DCO Privacy & Confidentiality Compliance","3.b.5":"Care Coordination HIT Improvement Plan (2-Year)",
+    "3.c.1":"FQHC / RHC Partnership","3.c.2":"Inpatient Psych, OTP & Residential SUD Partnerships",
+    "3.c.3":"Community Partnership (Schools, Justice, Child Welfare, 988)","3.c.4":"Veterans Affairs Partnership",
+    "3.c.5":"Hospital, ED & Acute Care Partnership (24hr Follow-Up)",
+    "3.d.1":"Person & Family-Centered Treatment Team","3.d.2":"Interdisciplinary Treatment Team",
+    "3.d.3":"DCO Care Coordination per Treatment Plan",
+    "4.a.1":"Required CCBHC Services - Full Scope","4.a.2":"DCO Service Delivery - All Required Services",
+    "4.a.3":"Grievance Procedures","4.a.4":"DCO Quality Standards Monitoring",
+    "4.b.1":"Person & Family-Centered Service Delivery (ACA 2402a)",
+    "4.b.2":"Culturally Responsive Care - Race, Ethnicity, SOGI",
+    "4.c.1":"Crisis Services - Receiving, Intervention & Stabilization",
+    "4.k.1":"Veterans Services - Direct/DCO Provision & VHA Standards",
+    "4.k.2":"Veterans Intake - Military Service Identification",
+    "4.k.3":"Veterans BH Integration - SUD/MH Coordination",
+    "4.k.4":"Principal Behavioral Health Provider Requirements",
+    "4.k.5":"Recovery-Oriented Services - SAMHSA & VHA Principles",
+    "4.k.6":"Cultural Competence & Military Culture Training",
+    "4.k.7":"Veterans Behavioral Health Treatment Planning",
+    "EBP: MI/MET":"Motivational Interviewing (MI) / Motivational Enhancement Therapy (MET)",
+    "EBP: TIC":"Trauma Informed Care (TIC)","EBP: CBT":"Cognitive Behavioral Therapy (CBT)",
+    "EBP: MAT":"Medication Assisted Treatment (MAT) incl. MOUD, AUD, TUD",
+    "EBP: Family Therapy":"Evidence-Based Family-Based Therapy",
+    "EBP: WHAM":"Whole Health Action Management (WHAM) / Learning About Healthy Living",
+    "EBP: Zero Suicide":"Zero Suicide Framework","EBP: Gambling Screen":"Gambling Screen (validated tool)",
+    "EBP: Wellness Plans":"Evidence-Based Personal Wellness Plans",
+    "DBT":"Dialectical Behavioral Therapy (DBT)","EMDR":"Eye Movement Desensitization & Reprocessing (EMDR)",
+    "EMDR-PTSD":"EMDR-PTSD","BA":"Behavioral Activation (BA)","CRAFT":"CRAFT",
+    "CRAFFT":"CRAFFT Screening Tool (children/adolescents)","MST":"Multisystemic Therapy (MST)",
+    "I-IMR":"Integrated Illness and Management Recovery (I-IMR)",
+    "5.a.1":"Data Capacity - Encounter, Outcome & Quality",
+    "5.a.2":"Quality Measure Collection & Reporting","5.a.3":"Annual Cost Reports",
+    "5.b.1":"CQI Plan - Annual CCBHC-Wide","5.b.2":"CQI Plan - Significant Events Review",
+    "5.b.3":"CQI Plan - Data-Driven & Health Disparities",
+    "6.a.1":"Organizational Authority - 501(c)(3) / Gov / Tribal",
+    "6.a.2":"Tribal / Urban Indian Outreach Arrangements","6.a.3":"Independent Annual Financial Audit",
+    "6.b.1":"Governance - Lived Experience (Option 1 or 2)",
+    "6.b.2":"Governance - Option 1 (51% Board) / Option 2 (Advisory)",
+    "6.b.3":"Governance - Governmental/Tribal Exception & Advisory Structure"
+  };
+  var EBP_IDS=["EBP: MI/MET","EBP: TIC","EBP: CBT","EBP: MAT","EBP: Family Therapy",
+    "EBP: WHAM","EBP: Zero Suicide","EBP: Gambling Screen","EBP: Wellness Plans",
+    "DBT","EMDR","EMDR-PTSD","BA","CRAFT","CRAFFT","MST","I-IMR"];
+  function isEBP(cid){return EBP_IDS.indexOf(cid)>=0;}
+  function sortKey(cid){
+    if(cid.match(/^1\./)) return '1_'+cid;
+    if(cid.match(/^2\./)) return '2_'+cid;
+    if(cid.match(/^3\./)) return '3_'+cid;
+    if(cid.match(/^4\.a/)) return '4a_'+cid;
+    if(cid.match(/^4\.b/)) return '4b_'+cid;
+    if(cid.match(/^4\.c/)) return '4c_'+cid;
+    if(cid.match(/^4\.k/)) return '4k_'+cid;
+    if(isEBP(cid)) return '4z_'+cid;
+    if(cid.match(/^5\./)) return '5_'+cid;
+    if(cid.match(/^6\./)) return '6_'+cid;
+    return '9_'+cid;
+  }
+  var sortedCriteria=Object.keys(CRIT_TO_SUBS).sort(function(a,b){
+    return sortKey(a)<sortKey(b)?-1:sortKey(a)>sortKey(b)?1:0;});
+  var secNames={"1":"Section 1 - Staffing","2":"Section 2 - Availability & Accessibility",
+    "3":"Section 3 - Care Coordination","4":"Section 4 - Scope of Services",
+    "5":"Section 5 - Quality & Reporting","6":"Section 6 - Governance & Accreditation"};
+  var html='<h2 style="color:var(--navy);text-align:center;margin-bottom:8px">Scoring Summary</h2>';
   html+='<table class="result-table"><thead><tr><th>Criterion</th><th>Label</th><th>Earned</th><th>Max</th><th>Score</th></tr></thead><tbody>';
-  Object.entries(CRIT_TO_SUBS).forEach(([cid,subs])=>{
-    const eligible=subs.filter(s=>answers[s]!==undefined&&answers[s]!=='N/A');
-    const earned=eligible.reduce((sum,s)=>sum+(computePoints(s)||0),0);
-    const max=eligible.reduce((sum,s)=>sum+((SUB_META[s]||{}).max_points||1),0);
-    const pct=max?(earned/max*100).toFixed(1)+'%':'-';
-    const cls=max&&(earned/max*100)>=75?'color:var(--green)':max&&(earned/max*100)>=65?'color:var(--amber)':max?'color:var(--red)':'';
-    html+='<tr><td style="font-family:monospace;font-size:11px">'+cid+'</td><td style="font-size:11px">'+( labels[cid]||cid)+'</td><td>'+earned.toFixed(1)+'</td><td>'+max+'</td><td style="font-weight:700;'+cls+'">'+pct+'</td></tr>';
+  var curSec='';
+  sortedCriteria.forEach(function(cid){
+    var subs=CRIT_TO_SUBS[cid];
+    var secNum=isEBP(cid)?'4':cid.split('.')[0];
+    if(secNum!==curSec){
+      curSec=secNum;
+      html+='<tr><td colspan="5" style="background:var(--navy);color:#fff;font-weight:700;font-size:11px;padding:5px 8px">'+(secNames[secNum]||'Section '+secNum)+'</td></tr>';
+    }
+    var eligible=subs.filter(function(s){return answers[s]!==undefined&&answers[s]!=='N/A';});
+    var earned=eligible.reduce(function(sum,s){return sum+(computePoints(s)||0);},0);
+    var max=eligible.reduce(function(sum,s){return sum+((SUB_META[s]||{}).max_points||1);},0);
+    var pct=max?(earned/max*100).toFixed(1)+'%':'--';
+    var pctNum=max?earned/max*100:null;
+    var cls=pctNum===null?'':pctNum>=75?'color:var(--green)':pctNum>=65?'color:var(--amber)':'color:var(--red)';
+    html+='<tr><td style="font-family:monospace;font-size:11px">'+cid+'</td>';
+    html+='<td style="font-size:11px">'+(labels[cid]||cid)+'</td>';
+    html+='<td>'+earned.toFixed(1)+'</td><td>'+max+'</td>';
+    html+='<td style="font-weight:700;'+cls+'">'+pct+'</td></tr>';
   });
-  html+='</tbody></table><div style="text-align:center;margin-top:12px"><button class="btnp" onclick="exportResults()">Export JSON</button> <button class="btno" onclick="closeModal()" style="margin-left:8px">Close</button></div>';
+  html+='</tbody></table>';
+  html+='<div style="text-align:center;margin-top:12px">';
+  html+='<button class="btnp" onclick="exportResults()">Export JSON</button> ';
+  html+='<button class="btno" onclick="closeModal()" style="margin-left:8px">Close</button></div>';
   document.getElementById('modal-body').innerHTML=html;
   document.getElementById('modal').style.display='block';
   document.getElementById('ov').style.display='block';
 }
+
 function closeModal(){document.getElementById('modal').style.display='none';document.getElementById('ov').style.display='none';}
 function showLoadFromListModal(){
   const ov=document.getElementById('load-list-ov'),md=document.getElementById('load-list-modal');
