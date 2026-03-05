@@ -191,9 +191,9 @@ function renderOverview(){
 
   // Recent activity - last 10 combined
   const all=[
-    ...allApps.map(r=>{return{name:r.fields['Clinic Name']||'Unknown',date:r.fields['Submitted At']||'',type:'Application',status:r.fields['Status']||'Submitted',id:r.id}}),
-    ...allNAs.map(r=>{return{name:r.fields['Clinic Name']||r.fields['na_agency_name']||'Unknown',date:r.fields['Submitted At']||r.fields['na_assessment_date']||'',type:'Needs Assessment',status:r.fields['Status']||'Submitted',id:r.id}}),
-    ...allScores.map(r=>{return{name:r.fields['Clinic Name']||'Unknown',date:r.fields['Review Date']||'',type:'Score Review',status:r.fields['Cert Status']||'-',id:r.id}})
+    ...allApps.map(r=>{return{name:r.fields['Clinic_Name']||'Unknown',date:r.fields['Timestamp']||'',type:'Application',status:r.fields['Status']||'Submitted',id:r.id}}),
+    ...allNAs.map(r=>{return{name:r.fields['Clinic_Name']||r.fields['na_agency_name']||'Unknown',date:r.fields['Timestamp']||r.fields['na_assessment_date']||'',type:'Needs Assessment',status:r.fields['Status']||'Submitted',id:r.id}}),
+    ...allScores.map(r=>{return{name:r.fields['Clinic_Name']||'Unknown',date:r.fields['Review Date']||'',type:'Score Review',status:r.fields['Cert Status']||'-',id:r.id}})
   ].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,10);
 
   document.getElementById('overview-recent').innerHTML=all.length?`<table>
@@ -211,11 +211,11 @@ function renderApps(){
     <thead><tr><th>Clinic Name</th><th>App Type</th><th>Submitted</th><th>Status</th><th>Assigned Reviewer</th><th>Actions</th></tr></thead>
     <tbody>${allApps.map(r=>{
       const f=r.fields;
-      const appData=f['Submission JSON']?tryParse(f['Submission JSON']):{};
-      return`<tr data-search="${(f['Clinic Name']||'').toLowerCase()}">
-        <td style="font-weight:600">${f['Clinic Name']||'-'}</td>
+      const appData=f['JSON_Payload']?tryParse(f['JSON_Payload']):{};
+      return`<tr data-search="${(f['Clinic_Name']||'').toLowerCase()}">
+        <td style="font-weight:600">${f['Clinic_Name']||'-'}</td>
         <td>${appData.application_type||'-'}</td>
-        <td>${f['Submitted At']?new Date(f['Submitted At']).toLocaleDateString():'-'}</td>
+        <td>${f['Timestamp']?new Date(f['Timestamp']).toLocaleDateString():'-'}</td>
         <td><select class="st-select" onchange="updateField('Applications','${r.id}','Status',this.value)">
           ${['Submitted','Under Review','Desk Review Complete','Site Visit Scheduled','Certified','Not Certified'].map(s=>`<option${(f['Status']||'')==s?' selected':''}>${s}</option>`).join('')}
         </select></td>
@@ -236,9 +236,9 @@ function renderNAs(){
     <thead><tr><th>Clinic Name</th><th>Assessment Date</th><th>App Type</th><th>Status</th><th>Actions</th></tr></thead>
     <tbody>${allNAs.map(r=>{
       const f=r.fields;
-      return`<tr data-search="${(f['Clinic Name']||f['na_agency_name']||'').toLowerCase()}">
-        <td style="font-weight:600">${f['Clinic Name']||f['na_agency_name']||'-'}</td>
-        <td>${f['Submitted At']||f['na_assessment_date']?new Date(f['Submitted At']||f['na_assessment_date']).toLocaleDateString():'-'}</td>
+      return`<tr data-search="${(f['Clinic_Name']||f['na_agency_name']||'').toLowerCase()}">
+        <td style="font-weight:600">${f['Clinic_Name']||f['na_agency_name']||'-'}</td>
+        <td>${f['Timestamp']||f['na_assessment_date']?new Date(f['Timestamp']||f['na_assessment_date']).toLocaleDateString():'-'}</td>
         <td>${f['na_app_type']||'-'}</td>
         <td><select class="st-select" onchange="updateField('Needs Assessment','${r.id}','Status',this.value)">
           ${['Submitted','Under Review','Accepted','Revision Requested'].map(s=>`<option${(f['Status']||'')==s?' selected':''}>${s}</option>`).join('')}
@@ -255,8 +255,8 @@ function renderScores(){
       const f=r.fields;
       const pct=f['Overall Score']||0;
       const barClass=pct>=80?'bar-ok':pct>=65?'bar-warn':'bar-fail';
-      return`<tr data-search="${((f['Clinic Name']||'')+(f['Reviewer']||'')).toLowerCase()}">
-        <td style="font-weight:600">${f['Clinic Name']||'-'}</td>
+      return`<tr data-search="${((f['Clinic_Name']||'')+(f['Reviewer']||'')).toLowerCase()}">
+        <td style="font-weight:600">${f['Clinic_Name']||'-'}</td>
         <td>${f['Reviewer']||'-'}</td>
         <td>${f['Review Date']?new Date(f['Review Date']).toLocaleDateString():'-'}</td>
         <td><div class="score-bar">
@@ -293,7 +293,7 @@ function showDetail(id,type){
   const rec=(type==='app'?allApps:type==='na'?allNAs:allScores).find(r=>r.id===id);
   if(!rec)return;
   const f=rec.fields;
-  const title=(f['Clinic Name']||f['na_agency_name']||'Record')+' - '+(type==='app'?'Application':type==='na'?'Needs Assessment':'Score Review');
+  const title=(f['Clinic_Name']||f['na_agency_name']||'Record')+' - '+(type==='app'?'Application':type==='na'?'Needs Assessment':'Score Review');
   let html='';
   if(type==='score'){
     const scoreData=f['Score JSON']?tryParse(f['Score JSON']):{};
@@ -305,12 +305,12 @@ function showDetail(id,type){
     </div>
     <pre>${JSON.stringify(scoreData,null,2)}</pre>`;
   }else if(type==='app'){
-    const appData=f['Submission JSON']?tryParse(f['Submission JSON']):{};
+    const appData=f['JSON_Payload']?tryParse(f['JSON_Payload']):{};
     html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
       <div><strong>NPI:</strong> ${appData.agency_npi||'-'}</div>
       <div><strong>App Type:</strong> ${appData.application_type||'-'}</div>
       <div><strong>Auth. Rep:</strong> ${appData.auth_rep_name||'-'}</div>
-      <div><strong>Submitted:</strong> ${f['Submitted At']||'-'}</div>
+      <div><strong>Submitted:</strong> ${f['Timestamp']||'-'}</div>
     </div><pre>${JSON.stringify(appData,null,2)}</pre>`;
   }else{
     html=`<pre>${JSON.stringify(f,null,2)}</pre>`;
