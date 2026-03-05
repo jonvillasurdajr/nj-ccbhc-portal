@@ -197,7 +197,7 @@ function renderQueue() {
   var pending = [];
   for (var j = 0; j < allApps.length; j++) {
     var r = allApps[j];
-    var d2 = tryParse(r.fields['JSON_Payload']);
+    var d2 = tryParse(r['Submission JSON']);
     var appId = (d2 && d2.application_id) ? d2.application_id : r.id;
     if (!scoredIds[appId]) pending.push(r);
   }
@@ -213,7 +213,7 @@ function renderQueue() {
   for (var k = 0; k < pending.length; k++) {
     var rec = pending[k];
     var f = rec.fields;
-    var appData = tryParse(f['JSON_Payload']);
+    var appData = tryParse(f['Submission JSON']);
     var recId = (appData && appData.application_id) ? appData.application_id : rec.id;
     var inProg = !!localStorage.getItem('ccbhc_draft_' + recId);
     var cls = inProg ? 'in-progress' : 'not-started';
@@ -223,9 +223,9 @@ function renderQueue() {
       : '<button class="btn btn-start" onclick="launchScoring(\'' + rec.id + '\')">Begin Review &#8594;</button>';
     html += '<div class="app-card ' + cls + '">' +
       '<div class="card-info">' +
-      '<div class="card-name">' + (f['Clinic_Name'] || 'Unnamed Clinic') + '</div>' +
+      '<div class="card-name">' + (f['Clinic Name'] || 'Unnamed Clinic') + '</div>' +
       '<div class="card-meta">' +
-      '<span>Submitted: ' + (f['Timestamp'] || '--') + '</span>' +
+      '<span>Submitted: ' + (f['Submission Date'] || '--') + '</span>' +
       '<span>' + (f['Application Type'] || 'Initial') + '</span>' +
       badge + '</div></div>' + btn + '</div>';
   }
@@ -252,7 +252,7 @@ function renderDone() {
     html += '<div class="score-card">' +
       '<div class="score-circle ' + cls + '">' + label + '</div>' +
       '<div class="score-info">' +
-      '<div class="score-name">' + (f['Clinic_Name'] || '--') + '</div>' +
+      '<div class="score-name">' + (f['Clinic Name'] || '--') + '</div>' +
       '<div class="score-meta">Status: ' + status + ' &middot; Reviewed: ' + (f['Score Date'] || '--') + '</div>' +
       '</div>' +
       '<button class="btn btn-view" onclick="viewScore(\'' + s.id + '\')">View &#8594;</button>' +
@@ -267,7 +267,7 @@ function launchScoring(recordId) {
     if (allApps[i].id === recordId) { rec = allApps[i]; break; }
   }
   if (!rec) { showToast('Application not found'); return; }
-  var submissionJSON = rec.fields['JSON_Payload'];
+  var submissionJSON = rec.fields['Submission JSON'];
   if (!submissionJSON) { showToast('No application data found'); return; }
   localStorage.setItem(LAUNCH_KEY, submissionJSON);
   var current = (rec.fields['Status'] || '').toLowerCase();
