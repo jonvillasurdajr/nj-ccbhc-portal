@@ -172,12 +172,22 @@ async function handleSubmit(){
   banner.style.display='none';
   const btn=document.getElementById('subbtn');
   btn.disabled=true; btn.textContent='Submitting…';
+  // Fire-and-forget to Google Sheets
   (function(){
     var url='https://script.google.com/macros/s/AKfycbyxVkIFhA0i1pffZ-Z88jjLOmCttxquusVJkyDjq4Fp8GIc5kGF10IE_kxEgu_Rgi3S/exec';
-    fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify({sheetType:'Applications',fields:{'Clinic_Name':d.agency_name||'','Status':'Received','JSON_Payload':JSON.stringify(d)}})}).catch(function(){});
+    var payload=JSON.stringify({
+      sheetType:'Applications',
+      fields:{
+        'Clinic Name': d.agency_name||'',
+        'Application Type': d.application_type||'',
+        'Submitted At': d.submitted_at||new Date().toISOString(),
+        'Submission JSON': JSON.stringify(d)
+      }
+    });
+    fetch(url,{method:'POST',mode:'no-cors',body:payload}).catch(function(){});
   })();
   downloadJSON(d); clearDraft(); showModal(d);
-  btn.disabled=false; btn.textContent='Submit Application →';
+  btn.disabled=false; btn.textContent='Submit Application →' \u2192'; }
 }
 
 function collect(){
