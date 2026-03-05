@@ -153,7 +153,7 @@ function initNav(){
 }
 function goTo(id){ const el=document.getElementById('sec-'+id); if(el)el.scrollIntoView({behavior:'smooth',block:'start'}); }
 
-async function handleSubmit(){
+async async function handleSubmit(){
   const d=collect(); const errs=validate(d);
   const banner=document.getElementById('errbanner');
   if(errs.length){
@@ -166,12 +166,12 @@ async function handleSubmit(){
   btn.disabled=true; btn.textContent='Submitting\u2026';
   try{
     const GOOGLE_SCRIPT_URL='https://script.google.com/macros/s/AKfycbyxVkIFhA0i1pffZ-Z88jjLOmCttxquusVJkyDjq4Fp8GIc5kGF10IE_kxEgu_Rgi3S/exec';
-    const _r=await fetch(GOOGLE_SCRIPT_URL,{
+    await fetch(GOOGLE_SCRIPT_URL,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({sheetType:'Applications',fields:{'Clinic Name':d.agency_name||'','Submitted At':d.submitted_at,'Status':'Received','Submission JSON':JSON.stringify(d)}}) 
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({sheetType:'Applications',fields:{'Clinic Name':d.agency_name||'','Submitted At':d.submitted_at,'Status':'Received','Submission JSON':JSON.stringify(d)}})
     });
-    if(!_r.ok) throw new Error('Submit '+_r.status);
     downloadJSON(d); clearDraft(); showModal(d);
   }
   catch(e){ toast('\u274C Submission failed \u2014 please try again'); }
