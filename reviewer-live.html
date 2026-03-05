@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CCBHC Reviewer Portal | NJ DMHAS</title>
+<style>
+:root{--navy:#1e4d8c;--blue2:#2d6abf;--blt:#ebf2fb;--teal:#1a6b5e;--tlt:#e8f6f4;--red:#c0392b;--green:#2d7d46;--amber:#d37f00;--g50:#f7f8fa;--g100:#f0f2f5;--g200:#e1e5eb;--g400:#9ba7b8;--g500:#6b7a8d;--g700:#2e3a4a;--r:8px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g50);color:var(--g700);min-height:100vh}
+header{background:var(--navy);color:#fff;padding:0}
+.hi{max-width:860px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.hi-left .ho{font-size:11px;opacity:.7;letter-spacing:.3px;margin-bottom:3px}
+.hi-left h1{font-size:19px;font-weight:700}
+.hi-right{font-size:12.5px;opacity:.85}
+main{max-width:860px;margin:0 auto;padding:28px 20px}
+.login-card{background:#fff;border:1px solid var(--g200);border-radius:var(--r);padding:32px 36px;max-width:440px;margin:60px auto;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.login-card h2{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.login-card p{font-size:13px;color:var(--g500);margin-bottom:20px;line-height:1.5}
+.login-input{width:100%;padding:10px 14px;border:1.5px solid var(--g200);border-radius:7px;font-size:14px;margin-bottom:12px;transition:border .15s}
+.login-input:focus{outline:none;border-color:var(--navy)}
+.login-btn{width:100%;padding:11px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:14px;font-weight:700;cursor:pointer;transition:background .15s}
+.login-btn:hover{background:#163d70}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin:28px 0 12px}
+.sec-hdr h2{font-size:15px;font-weight:700;color:var(--navy)}
+.sec-hdr .count{font-size:12px;background:var(--blt);color:var(--navy);padding:2px 10px;border-radius:12px;font-weight:600}
+.app-card{background:#fff;border:1px solid var(--g200);border-radius:var(--r);padding:16px 18px;margin-bottom:10px;display:flex;align-items:center;gap:16px;transition:box-shadow .15s}
+.app-card:hover{box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.app-card.in-progress{border-left:4px solid var(--amber)}
+.app-card.not-started{border-left:4px solid var(--navy)}
+.app-card.complete{border-left:4px solid var(--green)}
+.card-info{flex:1;min-width:0}
+.card-name{font-size:14px;font-weight:700;color:var(--g700);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-meta{font-size:12px;color:var(--g500);display:flex;flex-wrap:wrap;gap:10px}
+.card-meta span{display:flex;align-items:center;gap:3px}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.b-new{background:var(--blt);color:var(--navy)}
+.b-prog{background:#fff8eb;color:var(--amber)}
+.b-done{background:#e9f5ee;color:var(--green)}
+.btn{padding:8px 18px;border-radius:7px;border:none;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap;transition:all .15s}
+.btn-start{background:var(--navy);color:#fff}.btn-start:hover{background:#163d70}
+.btn-resume{background:var(--amber);color:#fff}.btn-resume:hover{background:#b86d00}
+.btn-view{background:var(--g100);color:var(--g700);border:1px solid var(--g200)}.btn-view:hover{background:var(--g200)}
+.score-card{background:#fff;border:1px solid var(--g200);border-radius:var(--r);padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:16px}
+.score-circle{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0}
+.sc-full{background:var(--green)}.sc-prov{background:var(--amber)}.sc-fail{background:var(--red)}.sc-pending{background:var(--g400)}
+.score-info{flex:1}
+.score-name{font-size:13.5px;font-weight:700;color:var(--g700);margin-bottom:2px}
+.score-meta{font-size:11.5px;color:var(--g500)}
+.empty{text-align:center;padding:36px 20px;color:var(--g400)}
+.empty .icon{font-size:36px;margin-bottom:10px}
+.empty p{font-size:13px}
+.loading{text-align:center;padding:32px;color:var(--g500);font-size:13px}
+.switcher{font-size:12px;color:var(--g500);cursor:pointer;text-decoration:underline}
+.switcher:hover{color:var(--navy)}
+.toast{position:fixed;bottom:20px;right:20px;background:#222;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;z-index:9999;display:none}
+.divider{border:none;border-top:1px solid var(--g200);margin:24px 0}
+.info-bar{background:var(--tlt);border:1px solid #a8d8cc;border-radius:7px;padding:10px 14px;font-size:12.5px;color:var(--teal);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+</style>
+</head>
+<body>
+
+<header><div class="hi">
+  <div class="hi-left">
+    <div class="ho">New Jersey DMHAS &middot; CCBHC Certification Program</div>
+    <h1>Reviewer Portal</h1>
+  </div>
+  <div class="hi-right" id="header-reviewer" style="display:none">
+    <span id="header-name"></span> &nbsp;&middot;&nbsp;
+    <span class="switcher" onclick="doLogout()">Switch Reviewer</span>
+  </div>
+</div></header>
+
+<div id="view-login">
+  <div class="login-card">
+    <div style="font-size:40px;margin-bottom:12px">&#128269;</div>
+    <h2>CCBHC Reviewer Portal</h2>
+    <p>Select your name to view your assigned applications and review queue.</p>
+    <select class="login-input" id="login-name" style="cursor:pointer">
+      <option value="">-- Select your name --</option>
+      <option value="Marie Verna">Marie Verna (DMHAS)</option>
+      <option value="Vicki Fresolone">Vicki Fresolone (DMHAS)</option>
+      <option value="Laura Henry">Laura Henry (Mercer)</option>
+      <option value="Jon Villasurda Jr.">Jon Villasurda Jr. (Mercer)</option>
+    </select>
+    <button class="login-btn" onclick="doLogin()">View My Queue &#8594;</button>
+    <p style="margin-top:14px;font-size:11.5px;color:var(--g400)">
+      Not assigned to any applications? Contact your DMHAS program coordinator.
+    </p>
+  </div>
+</div>
+
+<div id="view-queue" style="display:none">
+<main>
+  <div class="info-bar">
+    Applications are assigned by DMHAS program staff. Click <strong>Begin Review</strong> to open the scoring tool.
+  </div>
+  <div class="sec-hdr">
+    <h2>My Review Queue</h2>
+    <span class="count" id="queue-count">0</span>
+  </div>
+  <div id="queue-list"><div class="loading">Loading your queue...</div></div>
+  <hr class="divider">
+  <div class="sec-hdr">
+    <h2>My Completed Reviews</h2>
+    <span class="count" id="done-count">0</span>
+  </div>
+  <div id="done-list"><div class="loading">Loading completed reviews...</div></div>
+</main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxVkIFhA0i1pffZ-Z88jjLOmCttxquusVJkyDjq4Fp8GIc5kGF10IE_kxEgu_Rgi3S/exec';
+var SCORING_URL = '../njccbhc-certreview/scoring-live.html';
+var STORAGE_KEY = 'ccbhc_reviewer_name';
+var LAUNCH_KEY = 'ccbhc_launch_app';
+
+var reviewerName = '';
+var allApps = [];
+var allScores = [];
+
+function doLogin() {
+  var name = document.getElementById('login-name').value.trim();
+  if (!name) { showToast('Please select your name'); return; }
+  reviewerName = name;
+  localStorage.setItem(STORAGE_KEY, name);
+  showQueue();
+}
+
+function doLogout() {
+  reviewerName = '';
+  localStorage.removeItem(STORAGE_KEY);
+  document.getElementById('view-queue').style.display = 'none';
+  document.getElementById('view-login').style.display = 'block';
+  document.getElementById('header-reviewer').style.display = 'none';
+  document.getElementById('login-name').value = '';
+}
+
+function showQueue() {
+  document.getElementById('view-login').style.display = 'none';
+  document.getElementById('view-queue').style.display = 'block';
+  document.getElementById('header-reviewer').style.display = 'flex';
+  document.getElementById('header-name').textContent = reviewerName;
+  loadQueue();
+}
+
+function atGet(table, filter, callback) {
+  var sheetType = table === 'Scores' ? 'Scores' : 'Applications';
+  fetch(GOOGLE_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sheetType: sheetType, filterByFormula: filter, pageSize: 100 })
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(d) { callback(null, d.records || []); })
+    .catch(function(e) { callback(e, []); });
+}
+
+function loadQueue() {
+  document.getElementById('queue-list').innerHTML = '<div class="loading">Fetching your assigned applications...</div>';
+  document.getElementById('done-list').innerHTML = '<div class="loading">Fetching your completed reviews...</div>';
+
+  var appsFilter = '{Assigned Reviewer}="' + reviewerName + '"';
+  var scoresFilter = '{Reviewer}="' + reviewerName + '"';
+
+  atGet('Applications', appsFilter, function(err1, apps) {
+    if (err1) {
+      document.getElementById('queue-list').innerHTML = '<div class="empty"><p style="color:red">Failed to load: ' + err1.message + '</p></div>';
+      return;
+    }
+    allApps = apps;
+    atGet('Scores', scoresFilter, function(err2, scores) {
+      if (err2) {
+        document.getElementById('done-list').innerHTML = '<div class="empty"><p style="color:red">Failed to load: ' + err2.message + '</p></div>';
+        return;
+      }
+      allScores = scores;
+      renderQueue();
+      renderDone();
+    });
+  });
+}
+
+function tryParse(s) {
+  try { return JSON.parse(s); } catch(e) { return {}; }
+}
+
+function renderQueue() {
+  var scoredIds = {};
+  for (var i = 0; i < allScores.length; i++) {
+    var d = tryParse(allScores[i].fields['Score JSON']);
+    var id = (d && d.applicant && d.applicant.id) ? d.applicant.id : '';
+    if (id) scoredIds[id] = true;
+  }
+
+  var pending = [];
+  for (var j = 0; j < allApps.length; j++) {
+    var r = allApps[j];
+    var d2 = tryParse(r.fields['Submission JSON']);
+    var appId = (d2 && d2.application_id) ? d2.application_id : r.id;
+    if (!scoredIds[appId]) pending.push(r);
+  }
+
+  document.getElementById('queue-count').textContent = pending.length;
+
+  if (!pending.length) {
+    document.getElementById('queue-list').innerHTML = '<div class="empty"><div class="icon">&#127881;</div><p>No pending reviews -- all caught up!</p></div>';
+    return;
+  }
+
+  var html = '';
+  for (var k = 0; k < pending.length; k++) {
+    var rec = pending[k];
+    var f = rec.fields;
+    var appData = tryParse(f['Submission JSON']);
+    var recId = (appData && appData.application_id) ? appData.application_id : rec.id;
+    var inProg = !!localStorage.getItem('ccbhc_draft_' + recId);
+    var cls = inProg ? 'in-progress' : 'not-started';
+    var badge = inProg ? '<span class="badge b-prog">In Progress</span>' : '<span class="badge b-new">Not Started</span>';
+    var btn = inProg
+      ? '<button class="btn btn-resume" onclick="launchScoring(\'' + rec.id + '\')">Resume &#8594;</button>'
+      : '<button class="btn btn-start" onclick="launchScoring(\'' + rec.id + '\')">Begin Review &#8594;</button>';
+    html += '<div class="app-card ' + cls + '">' +
+      '<div class="card-info">' +
+      '<div class="card-name">' + (f['Clinic Name'] || 'Unnamed Clinic') + '</div>' +
+      '<div class="card-meta">' +
+      '<span>Submitted: ' + (f['Submission Date'] || '--') + '</span>' +
+      '<span>' + (f['Application Type'] || 'Initial') + '</span>' +
+      badge + '</div></div>' + btn + '</div>';
+  }
+  document.getElementById('queue-list').innerHTML = html;
+}
+
+function renderDone() {
+  document.getElementById('done-count').textContent = allScores.length;
+
+  if (!allScores.length) {
+    document.getElementById('done-list').innerHTML = '<div class="empty"><div class="icon">&#128221;</div><p>No completed reviews yet.</p></div>';
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < allScores.length; i++) {
+    var s = allScores[i];
+    var f = s.fields;
+    var d = tryParse(f['Score JSON']);
+    var pct = (d && d.summary && d.summary.overall_pct != null) ? Math.round(d.summary.overall_pct) : null;
+    var status = (d && d.summary && d.summary.certification_status) ? d.summary.certification_status : 'Pending';
+    var cls = status === 'Full Certification' ? 'sc-full' : status === 'Provisional' ? 'sc-prov' : status === 'Not Certified' ? 'sc-fail' : 'sc-pending';
+    var label = pct !== null ? pct + '%' : '--';
+    html += '<div class="score-card">' +
+      '<div class="score-circle ' + cls + '">' + label + '</div>' +
+      '<div class="score-info">' +
+      '<div class="score-name">' + (f['Clinic Name'] || '--') + '</div>' +
+      '<div class="score-meta">Status: ' + status + ' &middot; Reviewed: ' + (f['Score Date'] || '--') + '</div>' +
+      '</div>' +
+      '<button class="btn btn-view" onclick="viewScore(\'' + s.id + '\')">View &#8594;</button>' +
+      '</div>';
+  }
+  document.getElementById('done-list').innerHTML = html;
+}
+
+function launchScoring(recordId) {
+  var rec = null;
+  for (var i = 0; i < allApps.length; i++) {
+    if (allApps[i].id === recordId) { rec = allApps[i]; break; }
+  }
+  if (!rec) { showToast('Application not found'); return; }
+  var submissionJSON = rec.fields['Submission JSON'];
+  if (!submissionJSON) { showToast('No application data found'); return; }
+  localStorage.setItem(LAUNCH_KEY, submissionJSON);
+  var current = (rec.fields['Status'] || '').toLowerCase();
+  if (current.indexOf('review') === -1) {
+    fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sheetType: 'Applications', id: recordId, fields: { 'Status': 'Under Review' } })
+    }).catch(function() {});
+  }
+  showToast('Opening scoring tool...');
+  setTimeout(function() { window.open(SCORING_URL, '_blank'); }, 600);
+}
+
+function viewScore(recordId) {
+  var rec = null;
+  for (var i = 0; i < allScores.length; i++) {
+    if (allScores[i].id === recordId) { rec = allScores[i]; break; }
+  }
+  if (!rec) return;
+  var d = tryParse(rec.fields['Score JSON']);
+  alert(JSON.stringify(d && d.criterion_results ? d.criterion_results : d, null, 2).substring(0, 1200) + '...');
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(function() { t.style.display = 'none'; }, 3000);
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  var saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    var sel = document.getElementById('login-name');
+    for (var i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === saved) {
+        sel.value = saved;
+        reviewerName = saved;
+        showQueue();
+        break;
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CCBHC Certification Portal | NJ DMHAS — Admin</title>
+<style>
+:root{--navy:#1e4d8c;--blue2:#2d6abf;--blt:#ebf2fb;--teal:#1a6b5e;--tlt:#e8f6f4;--red:#c0392b;--green:#2d7d46;--amber:#d37f00;--g50:#f7f8fa;--g100:#f0f2f5;--g200:#e1e5eb;--g400:#9ba7b8;--g500:#6b7a8d;--g700:#2e3a4a;--r:8px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g50);color:var(--g700);min-height:100vh}
+/* Header */
+header{background:var(--navy);color:#fff;padding:0}
+.hi{max-width:1100px;margin:0 auto;padding:14px 20px}
+.ho{font-size:11px;opacity:.7;margin-bottom:4px;letter-spacing:.3px}
+.hi h1{font-size:20px;font-weight:700}
+.hi .hs{font-size:12px;opacity:.75;margin-top:3px}
+/* Tab bar */
+.tab-bar{background:#fff;border-bottom:2px solid var(--g200);position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.tab-inner{max-width:1100px;margin:0 auto;padding:0 20px;display:flex;gap:2px}
+.tab{padding:12px 20px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:600;color:var(--g500);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s}
+.tab:hover{color:var(--navy);background:var(--blt)}
+.tab.active{color:var(--navy);border-bottom-color:var(--navy)}
+/* Main */
+main{max-width:1100px;margin:0 auto;padding:24px 20px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+/* Stat cards */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid var(--g200);border-radius:var(--r);padding:16px 18px}
+.stat-card .sc-num{font-size:28px;font-weight:700;color:var(--navy);line-height:1}
+.stat-card .sc-label{font-size:12px;color:var(--g500);margin-top:4px}
+.stat-card.ok{border-left:4px solid var(--green)}.stat-card.warn{border-left:4px solid var(--amber)}.stat-card.info{border-left:4px solid var(--navy)}
+/* Section headers */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sh h2{font-size:15px;font-weight:700;color:var(--navy)}
+/* Tables */
+.tbl-wrap{background:#fff;border:1px solid var(--g200);border-radius:var(--r);overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--navy);color:#fff;padding:10px 13px;text-align:left;font-size:11.5px;font-weight:600;letter-spacing:.3px;white-space:nowrap}
+td{padding:9px 13px;border-bottom:1px solid var(--g200);vertical-align:middle}
+tr:hover td{background:var(--g50)}
+tr:last-child td{border-bottom:none}
+/* Badges */
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-sub{background:#e8f6f4;color:var(--teal)}.badge-review{background:#fff8eb;color:var(--amber)}
+.badge-done{background:#e9f5ee;color:var(--green)}.badge-full{background:#e9f5ee;color:var(--green)}
+.badge-prov{background:#fff8eb;color:var(--amber)}.badge-fail{background:#fdf3f2;color:var(--red)}
+.badge-pending{background:var(--g100);color:var(--g500)}
+/* Score bar */
+.score-bar{display:flex;align-items:center;gap:7px}
+.bar-track{width:80px;height:8px;background:var(--g200);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px}
+.bar-ok{background:var(--green)}.bar-warn{background:var(--amber)}.bar-fail{background:var(--red)}
+/* Buttons */
+.btn{padding:5px 12px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:600}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:#163d70}
+.btn-teal{background:var(--teal);color:#fff}.btn-teal:hover{background:#145549}
+.btn-sm{padding:3px 9px;font-size:11px}
+.btn-outline{background:#fff;border:1px solid var(--g200);color:var(--g700)}.btn-outline:hover{border-color:var(--navy);color:var(--navy)}
+/* Reviewer input */
+.rv-input{border:1px solid var(--g200);border-radius:5px;padding:4px 8px;font-size:12px;width:140px}
+.rv-input:focus{outline:none;border-color:var(--navy)}
+/* Select */
+.st-select{border:1px solid var(--g200);border-radius:5px;padding:4px 8px;font-size:12px;background:#fff;cursor:pointer}
+/* Loading */
+.loading{text-align:center;padding:40px;color:var(--g400);font-size:14px}
+/* Empty */
+.empty{text-align:center;padding:40px;color:var(--g400)}
+/* Detail modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:999;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:var(--r);padding:24px;max-width:700px;width:90%;max-height:80vh;overflow-y:auto;position:relative}
+.modal h3{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:14px}
+.modal pre{background:var(--g50);border:1px solid var(--g200);border-radius:6px;padding:12px;font-size:11px;white-space:pre-wrap;word-break:break-all;max-height:400px;overflow-y:auto}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;font-size:18px;cursor:pointer;color:var(--g500)}
+/* Top bar */
+.top-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.search-input{padding:7px 12px;border:1px solid var(--g200);border-radius:6px;font-size:12.5px;width:240px}
+.search-input:focus{outline:none;border-color:var(--navy)}
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;background:#222;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;z-index:9999;display:none;max-width:320px}
+/* Refresh */
+.refresh-btn{margin-left:auto;display:flex;align-items:center;gap:6px}
+</style>
+</head>
+<body>
+<header><div class="hi">
+  <div class="ho">New Jersey DMHAS · CCBHC Certification Program</div>
+  <h1>Certification Portal — Admin Dashboard</h1>
+  <p class="hs">Certification Year 2026 · Staff Use Only</p>
+</div></header>
+
+<div class="tab-bar"><div class="tab-inner">
+  <button class="tab active" onclick="showTab('overview')">📊 Overview</button>
+  <button class="tab" onclick="showTab('applications')">📝 Applications</button>
+  <button class="tab" onclick="showTab('assessments')">🏘️ Needs Assessments</button>
+  <button class="tab" onclick="showTab('scores')">🔍 Score Reviews</button>
+</div></div>
+
+<main>
+<!-- OVERVIEW -->
+<div id="tab-overview" class="tab-panel active">
+  <div class="stat-grid" id="overview-stats"><div class="loading">Loading data…</div></div>
+  <div class="sh"><h2>Recent Activity</h2></div>
+  <div class="tbl-wrap"><div id="overview-recent"><div class="loading">Loading…</div></div></div>
+</div>
+
+<!-- APPLICATIONS -->
+<div id="tab-applications" class="tab-panel">
+  <div class="top-bar">
+    <input class="search-input" type="text" id="app-search" placeholder="Search clinic name…" oninput="filterTable('app-table',this.value)">
+    <button class="btn btn-outline btn-sm" onclick="exportCSV('app-table','Applications')">⬇ Export CSV</button>
+    <div class="refresh-btn"><button class="btn btn-navy btn-sm" onclick="loadAll()">↻ Refresh</button></div>
+  </div>
+  <div class="tbl-wrap"><div id="app-table"><div class="loading">Loading applications…</div></div></div>
+</div>
+
+<!-- NEEDS ASSESSMENTS -->
+<div id="tab-assessments" class="tab-panel">
+  <div class="top-bar">
+    <input class="search-input" type="text" id="na-search" placeholder="Search clinic name…" oninput="filterTable('na-table',this.value)">
+    <button class="btn btn-outline btn-sm" onclick="exportCSV('na-table','NeedsAssessments')">⬇ Export CSV</button>
+    <div class="refresh-btn"><button class="btn btn-navy btn-sm" onclick="loadAll()">↻ Refresh</button></div>
+  </div>
+  <div class="tbl-wrap"><div id="na-table"><div class="loading">Loading needs assessments…</div></div></div>
+</div>
+
+<!-- SCORES -->
+<div id="tab-scores" class="tab-panel">
+  <div class="top-bar">
+    <input class="search-input" type="text" id="sc-search" placeholder="Search clinic or reviewer…" oninput="filterTable('sc-table',this.value)">
+    <button class="btn btn-outline btn-sm" onclick="exportCSV('sc-table','ScoreReviews')">⬇ Export CSV</button>
+    <div class="refresh-btn"><button class="btn btn-navy btn-sm" onclick="loadAll()">↻ Refresh</button></div>
+  </div>
+  <div class="tbl-wrap"><div id="sc-table"><div class="loading">Loading score reviews…</div></div></div>
+</div>
+</main>
+
+<!-- Detail modal -->
+<div class="modal-overlay" id="detail-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3 id="modal-title">Detail View</h3>
+    <div id="modal-content"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const GOOGLE_SCRIPT_URL='https://script.google.com/macros/s/AKfycbyxVkIFhA0i1pffZ-Z88jjLOmCttxquusVJkyDjq4Fp8GIc5kGF10IE_kxEgu_Rgi3S/exec';
+function sheetTypeFromTable(table){ return table==='Applications'?'Applications':table==='Needs Assessment'?'NeedsAssessments':'Scores'; }
+let allApps=[],allNAs=[],allScores=[];
+
+async function atFetch(table){
+  let records=[],offset=null;
+  const sheetType=sheetTypeFromTable(table);
+  do{
+    const r=await fetch(GOOGLE_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sheetType,pageSize:100,offset:offset||undefined})});
+    const d=await r.json();
+    if(d.records) records=[...records,...d.records];
+    offset=d.offset||null;
+  }while(offset);
+  return records;
+}
+
+async function loadAll(){
+  try{
+    [allApps,allNAs,allScores]=await Promise.all([
+      atFetch('Applications'),
+      atFetch('Needs Assessment'),
+      atFetch('Scores')
+    ]);
+    renderOverview();renderApps();renderNAs();renderScores();
+  }catch(e){toast('❌ Failed to load data: '+e.message);console.error(e);}
+}
+
+function renderOverview(){
+  // Stats
+  const submitted=allApps.length;
+  const underReview=allApps.filter(r=>(r.fields['Status']||'').toLowerCase().includes('review')).length;
+  const fullCert=allScores.filter(r=>(r.fields['Cert Status']||'')==='Full').length;
+  const provCert=allScores.filter(r=>(r.fields['Cert Status']||'')==='Provisional').length;
+  const avgScore=allScores.length?Math.round(allScores.reduce((s,r)=>s+(r.fields['Overall Score']||0),0)/allScores.length):0;
+
+  document.getElementById('overview-stats').innerHTML=`
+    <div class="stat-card info"><div class="sc-num">${submitted}</div><div class="sc-label">Applications Submitted</div></div>
+    <div class="stat-card info"><div class="sc-num">${allNAs.length}</div><div class="sc-label">Needs Assessments</div></div>
+    <div class="stat-card info"><div class="sc-num">${allScores.length}</div><div class="sc-label">Reviews Completed</div></div>
+    <div class="stat-card ok"><div class="sc-num">${fullCert}</div><div class="sc-label">Full Certifications</div></div>
+    <div class="stat-card warn"><div class="sc-num">${provCert}</div><div class="sc-label">Provisional Certs</div></div>
+    <div class="stat-card ${avgScore>=80?'ok':avgScore>=65?'warn':'info'}"><div class="sc-num">${avgScore||'—'}${avgScore?'%':''}</div><div class="sc-label">Avg Review Score</div></div>
+  `;
+
+  // Recent activity — last 10 combined
+  const all=[
+    ...allApps.map(r=>{return{name:r.fields['Clinic Name']||'Unknown',date:r.fields['Submitted At']||'',type:'Application',status:r.fields['Status']||'Submitted',id:r.id}}),
+    ...allNAs.map(r=>{return{name:r.fields['Clinic Name']||r.fields['na_agency_name']||'Unknown',date:r.fields['Submitted At']||r.fields['na_assessment_date']||'',type:'Needs Assessment',status:r.fields['Status']||'Submitted',id:r.id}}),
+    ...allScores.map(r=>{return{name:r.fields['Clinic Name']||'Unknown',date:r.fields['Review Date']||'',type:'Score Review',status:r.fields['Cert Status']||'—',id:r.id}})
+  ].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,10);
+
+  document.getElementById('overview-recent').innerHTML=all.length?`<table>
+    <thead><tr><th>Clinic / Organization</th><th>Type</th><th>Date</th><th>Status</th></tr></thead>
+    <tbody>${all.map(r=>`<tr>
+      <td style="font-weight:600">${r.name}</td>
+      <td>${r.type}</td>
+      <td>${r.date?new Date(r.date).toLocaleDateString():'—'}</td>
+      <td>${statusBadge(r.status,r.type)}</td>
+    </tr>`).join('')}</tbody></table>`:'<div class="empty">No activity yet.</div>';
+}
+
+function renderApps(){
+  document.getElementById('app-table').innerHTML=allApps.length?`<table id="app-table-el">
+    <thead><tr><th>Clinic Name</th><th>App Type</th><th>Submitted</th><th>Status</th><th>Assigned Reviewer</th><th>Actions</th></tr></thead>
+    <tbody>${allApps.map(r=>{
+      const f=r.fields;
+      const appData=f['Submission JSON']?tryParse(f['Submission JSON']):{};
+      return`<tr data-search="${(f['Clinic Name']||'').toLowerCase()}">
+        <td style="font-weight:600">${f['Clinic Name']||'—'}</td>
+        <td>${appData.application_type||'—'}</td>
+        <td>${f['Submitted At']?new Date(f['Submitted At']).toLocaleDateString():'—'}</td>
+        <td><select class="st-select" onchange="updateField('Applications','${r.id}','Status',this.value)">
+          ${['Submitted','Under Review','Desk Review Complete','Site Visit Scheduled','Certified','Not Certified'].map(s=>`<option${(f['Status']||'')==s?' selected':''}>${s}</option>`).join('')}
+        </select></td>
+        <td><select class="rv-input" onchange="updateField('Applications','${r.id}','Assigned Reviewer',this.value)">
+          <option value="">— Unassigned —</option>
+          <option value="Marie Verna" ${f['Assigned Reviewer']==='Marie Verna'?'selected':''}>Marie Verna (DMHAS)</option>
+          <option value="Vicki Fresolone" ${f['Assigned Reviewer']==='Vicki Fresolone'?'selected':''}>Vicki Fresolone (DMHAS)</option>
+          <option value="Laura Henry" ${f['Assigned Reviewer']==='Laura Henry'?'selected':''}>Laura Henry (Mercer)</option>
+          <option value="Jon Villasurda Jr." ${f['Assigned Reviewer']==='Jon Villasurda Jr.'?'selected':''}>Jon Villasurda Jr. (Mercer)</option>
+        </select></td>
+        <td><button class="btn btn-navy btn-sm" onclick="showDetail('${r.id}','app')">View</button></td>
+      </tr>`;
+    }).join('')}</tbody></table>`:'<div class="empty">No applications submitted yet.</div>';
+}
+
+function renderNAs(){
+  document.getElementById('na-table').innerHTML=allNAs.length?`<table id="na-table-el">
+    <thead><tr><th>Clinic Name</th><th>Assessment Date</th><th>App Type</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${allNAs.map(r=>{
+      const f=r.fields;
+      return`<tr data-search="${(f['Clinic Name']||f['na_agency_name']||'').toLowerCase()}">
+        <td style="font-weight:600">${f['Clinic Name']||f['na_agency_name']||'—'}</td>
+        <td>${f['Submitted At']||f['na_assessment_date']?new Date(f['Submitted At']||f['na_assessment_date']).toLocaleDateString():'—'}</td>
+        <td>${f['na_app_type']||'—'}</td>
+        <td><select class="st-select" onchange="updateField('Needs Assessment','${r.id}','Status',this.value)">
+          ${['Submitted','Under Review','Accepted','Revision Requested'].map(s=>`<option${(f['Status']||'')==s?' selected':''}>${s}</option>`).join('')}
+        </select></td>
+        <td><button class="btn btn-teal btn-sm" onclick="showDetail('${r.id}','na')">View</button></td>
+      </tr>`;
+    }).join('')}</tbody></table>`:'<div class="empty">No needs assessments submitted yet.</div>';
+}
+
+function renderScores(){
+  document.getElementById('sc-table').innerHTML=allScores.length?`<table id="sc-table-el">
+    <thead><tr><th>Clinic Name</th><th>Reviewer</th><th>Review Date</th><th>Overall Score</th><th>Cert Status</th><th>Actions</th></tr></thead>
+    <tbody>${allScores.map(r=>{
+      const f=r.fields;
+      const pct=f['Overall Score']||0;
+      const barClass=pct>=80?'bar-ok':pct>=65?'bar-warn':'bar-fail';
+      return`<tr data-search="${((f['Clinic Name']||'')+(f['Reviewer']||'')).toLowerCase()}">
+        <td style="font-weight:600">${f['Clinic Name']||'—'}</td>
+        <td>${f['Reviewer']||'—'}</td>
+        <td>${f['Review Date']?new Date(f['Review Date']).toLocaleDateString():'—'}</td>
+        <td><div class="score-bar">
+          <div class="bar-track"><div class="bar-fill ${barClass}" style="width:${pct}%"></div></div>
+          <span style="font-weight:700;color:var(--g700)">${pct}%</span>
+        </div></td>
+        <td>${statusBadge(f['Cert Status']||'—','score')}</td>
+        <td><button class="btn btn-navy btn-sm" onclick="showDetail('${r.id}','score')">Detail</button></td>
+      </tr>`;
+    }).join('')}</tbody></table>`:'<div class="empty">No score reviews recorded yet.</div>';
+}
+
+function statusBadge(val,type){
+  if(!val||val==='—')return`<span class="badge badge-pending">—</span>`;
+  const v=val.toLowerCase();
+  if(v.includes('full')||v.includes('certified')&&!v.includes('not'))return`<span class="badge badge-full">✓ ${val}</span>`;
+  if(v.includes('provisional'))return`<span class="badge badge-prov">⚠ ${val}</span>`;
+  if(v.includes('not')||v.includes('fail'))return`<span class="badge badge-fail">✗ ${val}</span>`;
+  if(v.includes('review'))return`<span class="badge badge-review">🔍 ${val}</span>`;
+  if(v.includes('submit'))return`<span class="badge badge-sub">📝 ${val}</span>`;
+  return`<span class="badge badge-pending">${val}</span>`;
+}
+
+async function updateField(table,id,field,value){
+  try{
+    await fetch(GOOGLE_SCRIPT_URL,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({sheetType:sheetTypeFromTable(table),id,fields:{[field]:value}})});
+    toast('✅ Saved');
+  }catch(e){toast('❌ Save failed: '+e.message);}
+}
+
+function showDetail(id,type){
+  const rec=(type==='app'?allApps:type==='na'?allNAs:allScores).find(r=>r.id===id);
+  if(!rec)return;
+  const f=rec.fields;
+  const title=(f['Clinic Name']||f['na_agency_name']||'Record')+' — '+(type==='app'?'Application':type==='na'?'Needs Assessment':'Score Review');
+  let html='';
+  if(type==='score'){
+    const scoreData=f['Score JSON']?tryParse(f['Score JSON']):{};
+    html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div><strong>Overall Score:</strong> ${f['Overall Score']||'—'}%</div>
+      <div><strong>Cert Status:</strong> ${f['Cert Status']||'—'}</div>
+      <div><strong>Reviewer:</strong> ${f['Reviewer']||'—'}</div>
+      <div><strong>Review Date:</strong> ${f['Review Date']||'—'}</div>
+    </div>
+    <pre>${JSON.stringify(scoreData,null,2)}</pre>`;
+  }else if(type==='app'){
+    const appData=f['Submission JSON']?tryParse(f['Submission JSON']):{};
+    html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div><strong>NPI:</strong> ${appData.agency_npi||'—'}</div>
+      <div><strong>App Type:</strong> ${appData.application_type||'—'}</div>
+      <div><strong>Auth. Rep:</strong> ${appData.auth_rep_name||'—'}</div>
+      <div><strong>Submitted:</strong> ${f['Submitted At']||'—'}</div>
+    </div><pre>${JSON.stringify(appData,null,2)}</pre>`;
+  }else{
+    html=`<pre>${JSON.stringify(f,null,2)}</pre>`;
+  }
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-content').innerHTML=html;
+  document.getElementById('detail-modal').classList.add('open');
+}
+function closeModal(){document.getElementById('detail-modal').classList.remove('open');}
+
+function showTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function filterTable(containerId,q){
+  const el=document.getElementById(containerId);
+  if(!el)return;
+  el.querySelectorAll('tr[data-search]').forEach(row=>{
+    row.style.display=row.dataset.search.includes(q.toLowerCase())?'':'none';
+  });
+}
+
+function exportCSV(containerId,filename){
+  const el=document.getElementById(containerId);
+  if(!el)return;
+  const rows=[...el.querySelectorAll('tr')];
+  const csv=rows.map(r=>[...r.querySelectorAll('th,td')].map(c=>'"'+c.textContent.replace(/"/g,'""').trim()+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=filename+'_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();
+}
+
+function tryParse(s){try{return JSON.parse(s);}catch{return{};}}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
+
+// Auto-load on page open
+loadAll();
+</script>
+</body>
+</html>
