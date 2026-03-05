@@ -172,11 +172,9 @@ async function handleSubmit(){
   banner.style.display='none';
   const btn=document.getElementById('subbtn');
   btn.disabled=true; btn.textContent='Submitting…';
-  // Fire-and-forget — submission never blocked by CORS
   (function(){
     var url='https://script.google.com/macros/s/AKfycbyxVkIFhA0i1pffZ-Z88jjLOmCttxquusVJkyDjq4Fp8GIc5kGF10IE_kxEgu_Rgi3S/exec';
-    var payload=JSON.stringify({sheetType:'Applications',fields:{'Clinic_Name':d.agency_name||'','Status':'Received','JSON_Payload':JSON.stringify(d)}});
-    fetch(url,{method:'POST',mode:'no-cors',body:payload}).catch(function(){});
+    fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify({sheetType:'Applications',fields:{'Clinic_Name':d.agency_name||'','Status':'Received','JSON_Payload':JSON.stringify(d)}})}).catch(function(){});
   })();
   downloadJSON(d); clearDraft(); showModal(d);
   btn.disabled=false; btn.textContent='Submit Application →';
@@ -260,7 +258,7 @@ function trackProgress(){
 window.addEventListener('beforeunload',e=>{ if(localStorage.getItem(DK3)){e.preventDefault();e.returnValue='';} });
 
 function loadTestData(){
-  if(!confirm('Load Mercer County CCBHC sample data? Fills 97 fields.')){return;}
+  if(!confirm('Load Mercer County sample data? Fills 97 fields.')){return;}
   function sv(nm,val){var el=document.querySelector('[name="'+nm+'"]');if(!el)return;
     el.tagName==='SELECT'?el.value=val:el.value=val;
     el.dispatchEvent(new Event('change'));el.dispatchEvent(new Event('input'));}
@@ -321,7 +319,7 @@ function loadTestData(){
   sv('ebp_gambling_screen_status','No');
   sv('ebp_personal_wellness_status','In Progress');
   sv('ebp_notes','WHAM and Personal Wellness Plan in progress; target Q3 2026.');
-  sv('gov_description','MCBHA is governed by a 15-member Board with at least 30% consumer/family representation. Board meets quarterly.');
+  sv('gov_description','MCBHA is governed by a 15-member Board with at least 30% consumer/family representation.');
   sv('loc_addr1[]','640 South Broad Street');
   sv('loc_addr2[]','Suite 200');
   sv('loc_city[]','Trenton');
@@ -365,6 +363,6 @@ function loadTestData(){
   sc('attest_agree');
   var re=document.querySelector('[name="rev_medicaid"]');if(re)re.dispatchEvent(new Event('input'));
   window.scrollTo({top:0,behavior:'smooth'});
-  setTimeout(function(){alert('97 fields loaded. Review each section then Submit.');},300);
+  setTimeout(function(){alert('97 fields loaded. Submit when ready.');},300);
 }
 </script></body></html>
