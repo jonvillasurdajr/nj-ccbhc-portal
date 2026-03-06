@@ -149,27 +149,37 @@ function atGet(table, filter, callback) {
   var sheetType = table === 'Scores' ? 'Scores' : 'Applications';
   var cbName = '_cb' + Date.now() + '_' + Math.random().toString(36).slice(2);
   var s = document.createElement('script');
+  var done = false;
+  var timeout = setTimeout(function(){ if(!done){ done=true; delete window[cbName]; if(s.parentNode)s.parentNode.removeChild(s); callback(null,[]); } }, 10000);
   window[cbName] = function(d) {
-    delete window[cbName];
-    if (s.parentNode) s.parentNode.removeChild(s);
-    callback(null, d.records || []);
-  };
-  s.onerror = function() { delete window[cbName]; callback(new Error('Load failed'), []); };
-  s.src = GOOGLE_SCRIPT_URL + '?sheetType=' + encodeURIComponent(sheetType) + '&pageSize=200&callback=' + cbName;
-  document.head.appendChild(s);
-}
-
-
-function loadQueue() {
+    if(done) rfunction loadQueue() {
   document.getElementById('queue-list').innerHTML = '<div class="loading">Fetching your assigned applications...</div>';
   document.getElementById('done-list').innerHTML = '<div class="loading">Fetching your completed reviews...</div>';
 
-  var appsFilter = '{Assigned Reviewer}="' + reviewerName + '"';
-  var scoresFilter = '{Reviewer}="' + reviewerName + '"';
-
-  atGet('Applications', appsFilter, function(err1, apps) {
+  atGet('Applications', null, function(err1, apps) {
     if (err1) {
       document.getElementById('queue-list').innerHTML = '<div class="empty"><p style="color:red">Failed to load: ' + err1.message + '</p></div>';
+      return;
+    }
+    // Filter client-side by Assigned Reviewer
+    allApps = apps.filter(function(r) {
+      return (r['Assigned Reviewer'] || '').toLowerCase() === reviewerName.toLowerCase();
+    });
+    atGet('Scores', null, function(err2, scores) {
+      if (err2) {
+        document.getElementById('done-list').innerHTML = '<div class="empty"><p style="color:red">Failed to load: ' + err2.message + '</p></div>';
+        return;
+      }
+      // Filter scores by reviewer name
+      allScores = scores.filter(function(r) {
+        return (r['Reviewer Name'] || r['Reviewer'] || '').toLowerCase() === reviewerName.toLowerCase();
+      });
+      renderQueue();
+      renderDone();
+    });
+  });
+}
+ty"><p style="color:red">Failed to load: ' + err1.message + '</p></div>';
       return;
     }
     allApps = apps;
@@ -275,11 +285,14 @@ function launchScoring(recordId) {
   localStorage.setItem(LAUNCH_KEY, submissionJSON);
   var current = (rec.fields['Status'] || '').toLowerCase();
   if (current.indexOf('review') === -1) {
-    fetch(GOOGLE_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ sheetType: 'Applications', id: recordId, fields: { 'Status': 'Under Review' } })
-    }).catch(function() {});
+    (function(){
+      var cbName='_rw'+Date.now();
+      var s=document.createElement('script');
+      window[cbName]=function(){delete window[cbName];if(s.parentNode)s.parentNode.removeChild(s);};
+      s.onerror=function(){delete window[cbName];};
+      s.src=GOOGLE_SCRIPT_URL+'?sheetType=Applications&action=UPDATE&id='+encodeURIComponent(recordId)+'&field=Status&value=Under+Review&callback='+cbName;
+      document.head.appendChild(s);
+    })();
   }
   showToast('Opening scoring tool...');
   setTimeout(function() { window.open(SCORING_URL, '_blank'); }, 600);
