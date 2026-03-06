@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CCBHC Reviewer Portal | NJ DMHAS</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CCBHC Reviewer Portal – NJ DMHAS</title>
 <style>
 :root{--navy:#1e4d8c;--blue2:#2d6abf;--blt:#ebf2fb;--teal:#1a6b5e;--tlt:#e8f6f4;--red:#c0392b;--green:#2d7d46;--amber:#d37f00;--g50:#f7f8fa;--g100:#f0f2f5;--g200:#e1e5eb;--g400:#9ba7b8;--g500:#6b7a8d;--g700:#2e3a4a;--r:8px}
-*{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g50);color:var(--g700);min-height:100vh}
 header{background:var(--navy);color:#fff;padding:0}
 .hi{max-width:860px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
@@ -37,9 +38,12 @@ main{max-width:860px;margin:0 auto;padding:28px 20px}
 .b-prog{background:#fff8eb;color:var(--amber)}
 .b-done{background:#e9f5ee;color:var(--green)}
 .btn{padding:8px 18px;border-radius:7px;border:none;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap;transition:all .15s}
-.btn-start{background:var(--navy);color:#fff}.btn-start:hover{background:#163d70}
-.btn-resume{background:var(--amber);color:#fff}.btn-resume:hover{background:#b86d00}
-.btn-view{background:var(--g100);color:var(--g700);border:1px solid var(--g200)}.btn-view:hover{background:var(--g200)}
+.btn-start{background:var(--navy);color:#fff}
+.btn-start:hover{background:#163d70}
+.btn-resume{background:var(--amber);color:#fff}
+.btn-resume:hover{background:#b86d00}
+.btn-view{background:var(--g100);color:var(--g700);border:1px solid var(--g200)}
+.btn-view:hover{background:var(--g200)}
 .score-card{background:#fff;border:1px solid var(--g200);border-radius:var(--r);padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:16px}
 .score-circle{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0}
 .sc-full{background:var(--green)}.sc-prov{background:var(--amber)}.sc-fail{background:var(--red)}.sc-pending{background:var(--g400)}
@@ -58,29 +62,30 @@ main{max-width:860px;margin:0 auto;padding:28px 20px}
 </style>
 </head>
 <body>
-
-<header><div class="hi">
-  <div class="hi-left">
-    <div class="ho">New Jersey DMHAS &middot; CCBHC Certification Program</div>
-    <h1>Reviewer Portal</h1>
+<header>
+  <div class="hi">
+    <div class="hi-left">
+      <div class="ho">New Jersey DMHAS &middot; CCBHC Certification Program</div>
+      <h1>Reviewer Portal</h1>
+    </div>
+    <div class="hi-right" id="header-reviewer" style="display:none">
+      <span id="header-name"></span> &nbsp;&middot;&nbsp;
+      <span class="switcher" onclick="doLogout()">Switch Reviewer</span>
+    </div>
   </div>
-  <div class="hi-right" id="header-reviewer" style="display:none">
-    <span id="header-name"></span> &nbsp;&middot;&nbsp;
-    <span class="switcher" onclick="doLogout()">Switch Reviewer</span>
-  </div>
-</div></header>
+</header>
 
 <div id="view-login">
   <div class="login-card">
-    <div style="font-size:40px;margin-bottom:12px">&#128269;</div>
+    <div style="font-size:40px;margin-bottom:12px">&#128105;</div>
     <h2>CCBHC Reviewer Portal</h2>
     <p>Select your name to view your assigned applications and review queue.</p>
     <select class="login-input" id="login-name" style="cursor:pointer">
       <option value="">-- Select your name --</option>
-      <option value="Marie Verna">Marie Verna (DMHAS)</option>
-      <option value="Vicki Fresolone">Vicki Fresolone (DMHAS)</option>
-      <option value="Laura Henry">Laura Henry (Mercer)</option>
-      <option value="Jon Villasurda Jr.">Jon Villasurda Jr. (Mercer)</option>
+      <option value="Marie Verna">Marie Verna – DMHAS</option>
+      <option value="Vicki Fresolone">Vicki Fresolone – DMHAS</option>
+      <option value="Laura Henry">Laura Henry – Mercer</option>
+      <option value="Jon Villasurda Jr.">Jon Villasurda Jr. – Mercer</option>
     </select>
     <button class="login-btn" onclick="doLogin()">View My Queue &#8594;</button>
     <p style="margin-top:14px;font-size:11.5px;color:var(--g400)">
@@ -90,28 +95,26 @@ main{max-width:860px;margin:0 auto;padding:28px 20px}
 </div>
 
 <div id="view-queue" style="display:none">
-<main>
-  <div class="info-bar">
-    Applications are assigned by DMHAS program staff. Click <strong>Begin Review</strong> to open the scoring tool.
-  </div>
-  <div class="sec-hdr">
-    <h2>My Review Queue</h2>
-    <span class="count" id="queue-count">0</span>
-  </div>
-  <div id="queue-list"><div class="loading">Loading your queue...</div></div>
-  <hr class="divider">
-  <div class="sec-hdr">
-    <h2>My Completed Reviews</h2>
-    <span class="count" id="done-count">0</span>
-  </div>
-  <div id="done-list"><div class="loading">Loading completed reviews...</div></div>
-</main>
+  <main>
+    <div class="info-bar">Applications are assigned by DMHAS program staff. Click <strong>Begin Review</strong> to open the scoring tool.</div>
+    <div class="sec-hdr">
+      <h2>My Review Queue</h2>
+      <span class="count" id="queue-count">0</span>
+    </div>
+    <div id="queue-list"><div class="loading">Loading your queue...</div></div>
+    <hr class="divider">
+    <div class="sec-hdr">
+      <h2>My Completed Reviews</h2>
+      <span class="count" id="done-count">0</span>
+    </div>
+    <div id="done-list"><div class="loading">Loading completed reviews...</div></div>
+  </main>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-var GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxVkIFhA0i1pffZ-Z88jjLOmCttxquusVJkyDjq4Fp8GIc5kGF10IE_kxEgu_Rgi3S/exec';
+var GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxVkIFhA0i1pffZ-Z88jjLOmCttxquusVJkyDjq4Fp8GIc5kGF10IEkxEguRgi3S/exec';
 var SCORING_URL = './scoring-live.html';
 var STORAGE_KEY = 'ccbhc_reviewer_name';
 var LAUNCH_KEY = 'ccbhc_launch_app';
@@ -147,117 +150,106 @@ function showQueue() {
 
 function atGet(table, filter, callback) {
   var sheetType = table === 'Scores' ? 'Scores' : 'Applications';
-  var cbName = '_cb' + Date.now() + '_' + Math.random().toString(36).slice(2);
-  var s = document.createElement('script');
-  var done = false;
-  var timeout = setTimeout(function(){ if(!done){ done=true; delete window[cbName]; if(s.parentNode)s.parentNode.removeChild(s); callback(null,[]); }}, 10000);
-  window[cbName] = function(d) {
-    if(done) return; done=true; clearTimeout(timeout);
-    delete window[cbName]; if(s.parentNode) s.parentNode.removeChild(s);
-    callback(null, d.records || []);
-  };
-  s.onerror = function(){ if(!done){ done=true; clearTimeout(timeout); delete window[cbName]; callback(null,[]); }};
-  s.src = GOOGLE_SCRIPT_URL + '?sheetType=' + encodeURIComponent(sheetType) + '&pageSize=200&callback=' + cbName;
-  document.head.appendChild(s);
+  fetch(GOOGLE_SCRIPT_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({sheetType: sheetType, filterByFormula: filter, pageSize: 100})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) { callback(null, d.records); })
+  .catch(function(e) { callback(e); });
 }
-
 
 function loadQueue() {
   document.getElementById('queue-list').innerHTML = '<div class="loading">Fetching your assigned applications...</div>';
   document.getElementById('done-list').innerHTML = '<div class="loading">Fetching your completed reviews...</div>';
-  atGet('Applications', null, function(err1, apps) {
-    if (err1) { document.getElementById('queue-list').innerHTML = '<div class="empty"><p style="color:red">Failed to load.</p></div>'; return; }
-    // Filter client-side by Assigned Reviewer
-    allApps = apps.filter(function(r) {
-      return (r['Assigned Reviewer'] || '').toLowerCase() === reviewerName.toLowerCase();
-    });
-    atGet('Scores', null, function(err2, scores) {
-      if (err2) { document.getElementById('done-list').innerHTML = '<div class="empty"><p style="color:red">Failed to load.</p></div>'; return; }
-      allScores = scores.filter(function(r) {
-        return (r['Reviewer Name'] || r['Reviewer'] || '').toLowerCase() === reviewerName.toLowerCase();
-      });
+
+  var appsFilter = '{Assigned Reviewer} = "' + reviewerName + '"';
+  var scoresFilter = '{Reviewer} = "' + reviewerName + '"';
+
+  atGet('Applications', appsFilter, function(err1, apps) {
+    if (err1) {
+      document.getElementById('queue-list').innerHTML = '<div class="empty"><p style="color:red">Failed to load: ' + err1.message + '</p></div>';
+      return;
+    }
+    allApps = apps;
+    atGet('Scores', scoresFilter, function(err2, scores) {
+      if (err2) {
+        document.getElementById('done-list').innerHTML = '<div class="empty"><p style="color:red">Failed to load: ' + err2.message + '</p></div>';
+        return;
+      }
+      allScores = scores;
       renderQueue();
       renderDone();
     });
   });
 }
 
-
-function tryParse(s) {
-  try { return JSON.parse(s); } catch(e) { return {}; }
-}
+function tryParse(s) { try { return JSON.parse(s); } catch(e) { return null; } }
 
 function renderQueue() {
   var scoredIds = {};
   for (var i = 0; i < allScores.length; i++) {
-    var d = tryParse(allScores[i]['Score JSON']);
-    var id = (d && d.applicant && d.applicant.id) ? d.applicant.id : '';
+    var d = tryParse(allScores[i].fields['Score JSON']);
+    var id = d && d.applicant ? d.applicant.id : null;
     if (id) scoredIds[id] = true;
   }
-
   var pending = [];
   for (var j = 0; j < allApps.length; j++) {
     var r = allApps[j];
-    var d2 = tryParse(r['Submission JSON']);
-    var appId = (d2 && d2.application_id) ? d2.application_id : r.id;
+    var d2 = tryParse(r.fields['Submission JSON']);
+    var appId = d2 && d2.applicationid ? d2.applicationid : r.id;
     if (!scoredIds[appId]) pending.push(r);
   }
-
   document.getElementById('queue-count').textContent = pending.length;
-
   if (!pending.length) {
-    document.getElementById('queue-list').innerHTML = '<div class="empty"><div class="icon">&#127881;</div><p>No pending reviews -- all caught up!</p></div>';
+    document.getElementById('queue-list').innerHTML = '<div class="empty"><div class="icon">&#127881;</div><p>No pending reviews — all caught up!</p></div>';
     return;
   }
-
   var html = '';
   for (var k = 0; k < pending.length; k++) {
     var rec = pending[k];
-    var f = rec;
+    var f = rec.fields;
     var appData = tryParse(f['Submission JSON']);
-    var recId = (appData && appData.application_id) ? appData.application_id : rec['ID'];
+    var recId = appData && appData.applicationid ? appData.applicationid : rec.id;
     var inProg = !!localStorage.getItem('ccbhc_draft_' + recId);
     var cls = inProg ? 'in-progress' : 'not-started';
     var badge = inProg ? '<span class="badge b-prog">In Progress</span>' : '<span class="badge b-new">Not Started</span>';
     var btn = inProg
-      ? '<button class="btn btn-resume" onclick="launchScoring(\'' + rec['ID'] + '\')">Resume &#8594;</button>'
-      : '<button class="btn btn-start" onclick="launchScoring(\'' + rec['ID'] + '\')">Begin Review &#8594;</button>';
-    html += '<div class="app-card ' + cls + '">' +
-      '<div class="card-info">' +
-      '<div class="card-name">' + (f['Clinic Name'] || 'Unnamed Clinic') + '</div>' +
-      '<div class="card-meta">' +
-      '<span>Submitted: ' + (f['Submitted At'] || '--') + '</span>' +
-      '<span>' + (f['Application Type'] || 'Initial') + '</span>' +
-      badge + '</div></div>' + btn + '</div>';
+      ? '<button class="btn btn-resume" onclick="launchScoring(\'' + rec.id + '\')">Resume &#8594;</button>'
+      : '<button class="btn btn-start" onclick="launchScoring(\'' + rec.id + '\')">Begin Review &#8594;</button>';
+    html += '<div class="app-card ' + cls + '">'
+      + '<div class="card-info">'
+      + '<div class="card-name">' + (f['Clinic Name'] || 'Unnamed Clinic') + '</div>'
+      + '<div class="card-meta"><span>Submitted: ' + (f['Submission Date'] || '--') + '</span><span>' + (f['Application Type'] || 'Initial') + '</span>' + badge + '</div>'
+      + '</div>' + btn + '</div>';
   }
   document.getElementById('queue-list').innerHTML = html;
 }
 
 function renderDone() {
   document.getElementById('done-count').textContent = allScores.length;
-
   if (!allScores.length) {
     document.getElementById('done-list').innerHTML = '<div class="empty"><div class="icon">&#128221;</div><p>No completed reviews yet.</p></div>';
     return;
   }
-
   var html = '';
   for (var i = 0; i < allScores.length; i++) {
     var s = allScores[i];
-    var f = s;
+    var f = s.fields;
     var d = tryParse(f['Score JSON']);
-    var pct = (d && d.summary && d.summary.overall_pct != null) ? Math.round(d.summary.overall_pct) : null;
-    var status = (d && d.summary && d.summary.certification_status) ? d.summary.certification_status : 'Pending';
+    var pct = d && d.summary && d.summary.overallpct != null ? Math.round(d.summary.overallpct) : null;
+    var status = d && d.summary && d.summary.certificationstatus ? d.summary.certificationstatus : 'Pending';
     var cls = status === 'Full Certification' ? 'sc-full' : status === 'Provisional' ? 'sc-prov' : status === 'Not Certified' ? 'sc-fail' : 'sc-pending';
-    var label = pct !== null ? pct + '%' : '--';
-    html += '<div class="score-card">' +
-      '<div class="score-circle ' + cls + '">' + label + '</div>' +
-      '<div class="score-info">' +
-      '<div class="score-name">' + (f['Clinic Name'] || '--') + '</div>' +
-      '<div class="score-meta">Status: ' + status + ' &middot; Reviewed: ' + (f['Score Date'] || '--') + '</div>' +
-      '</div>' +
-      '<button class="btn btn-view" onclick="viewScore(\'' + s['ID'] + '\')">View &#8594;</button>' +
-      '</div>';
+    var label = pct != null ? pct + '%' : '--';
+    html += '<div class="score-card">'
+      + '<div class="score-circle ' + cls + '">' + label + '</div>'
+      + '<div class="score-info">'
+      + '<div class="score-name">' + (f['Clinic Name'] || '--') + '</div>'
+      + '<div class="score-meta">Status: ' + status + ' &middot; Reviewed: ' + (f['Score Date'] || '--') + '</div>'
+      + '</div>'
+      + '<button class="btn btn-view" onclick="viewScore(\'' + s.id + '\')">View &#8594;</button>'
+      + '</div>';
   }
   document.getElementById('done-list').innerHTML = html;
 }
@@ -265,21 +257,19 @@ function renderDone() {
 function launchScoring(recordId) {
   var rec = null;
   for (var i = 0; i < allApps.length; i++) {
-    if (String(allApps[i]['ID']) === String(recordId)) { rec = allApps[i]; break; }
+    if (allApps[i].id === recordId) { rec = allApps[i]; break; }
   }
   if (!rec) { showToast('Application not found'); return; }
-  var submissionJSON = rec['Submission JSON'];
+  var submissionJSON = rec.fields['Submission JSON'];
   if (!submissionJSON) { showToast('No application data found'); return; }
   localStorage.setItem(LAUNCH_KEY, submissionJSON);
-  var current = (rec['Status'] || '').toLowerCase();
+  var current = (rec.fields['Status'] || '').toLowerCase();
   if (current.indexOf('review') === -1) {
-    (function(){
-      var cbN='_rw'+Date.now(); var sc=document.createElement('script');
-      window[cbN]=function(){delete window[cbN];if(sc.parentNode)sc.parentNode.removeChild(sc);};
-      sc.onerror=function(){delete window[cbN];};
-      sc.src=GOOGLE_SCRIPT_URL+'?sheetType=Applications&action=UPDATE&id='+encodeURIComponent(recordId)+'&field=Status&value=Under+Review&callback='+cbN;
-      document.head.appendChild(sc);
-    })();
+    fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({sheetType: 'Applications', id: recordId, fields: {Status: 'Under Review'}})
+    }).catch(function() {});
   }
   showToast('Opening scoring tool...');
   setTimeout(function() { window.open(SCORING_URL, '_blank'); }, 600);
@@ -291,8 +281,8 @@ function viewScore(recordId) {
     if (allScores[i].id === recordId) { rec = allScores[i]; break; }
   }
   if (!rec) return;
-  var d = tryParse(rec['Score JSON']);
-  alert(JSON.stringify(d && d.criterion_results ? d.criterion_results : d, null, 2).substring(0, 1200) + '...');
+  var d = tryParse(rec.fields['Score JSON']);
+  alert(JSON.stringify(d && d.criterionresults ? d.criterionresults : d, null, 2).substring(0, 1200) + '...');
 }
 
 function showToast(msg) {
