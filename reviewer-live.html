@@ -213,7 +213,7 @@ function renderQueue() {
   var html = '';
   for (var k = 0; k < pending.length; k++) {
     var rec = pending[k];
-    var f = rec.fields;
+    var f = rec;
     var appData = tryParse(f['Submission JSON']);
     var recId = (appData && appData.application_id) ? appData.application_id : rec['ID'];
     var inProg = !!localStorage.getItem('ccbhc_draft_' + recId);
@@ -226,7 +226,7 @@ function renderQueue() {
       '<div class="card-info">' +
       '<div class="card-name">' + (f['Clinic Name'] || 'Unnamed Clinic') + '</div>' +
       '<div class="card-meta">' +
-      '<span>Submitted: ' + (f['Submission Date'] || '--') + '</span>' +
+      '<span>Submitted: ' + (f['Submitted At'] || '--') + '</span>' +
       '<span>' + (f['Application Type'] || 'Initial') + '</span>' +
       badge + '</div></div>' + btn + '</div>';
   }
@@ -244,7 +244,7 @@ function renderDone() {
   var html = '';
   for (var i = 0; i < allScores.length; i++) {
     var s = allScores[i];
-    var f = s.fields;
+    var f = s;
     var d = tryParse(f['Score JSON']);
     var pct = (d && d.summary && d.summary.overall_pct != null) ? Math.round(d.summary.overall_pct) : null;
     var status = (d && d.summary && d.summary.certification_status) ? d.summary.certification_status : 'Pending';
@@ -265,7 +265,7 @@ function renderDone() {
 function launchScoring(recordId) {
   var rec = null;
   for (var i = 0; i < allApps.length; i++) {
-    if (allApps[i].id === recordId) { rec = allApps[i]; break; }
+    if (String(allApps[i]['ID']) === String(recordId)) { rec = allApps[i]; break; }
   }
   if (!rec) { showToast('Application not found'); return; }
   var submissionJSON = rec['Submission JSON'];
