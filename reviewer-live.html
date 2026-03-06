@@ -197,14 +197,6 @@ function renderQueue() {
   var pending = [];
   for (var j = 0; j < allApps.length; j++) {
     var r = allApps[j];
-    // Skip ghost records created by failed update calls
-    var clinicName = r['Clinic Name'] || '';
-    var hasRealData = r['Submission JSON'] && r['Submission JSON'].length > 10;
-    var isGhost = !hasRealData || clinicName === 'Unknown' || clinicName === '';
-    if (isGhost) continue;
-    // Check reviewer assignment (client-side filter since GAS filter may not work)
-    var assignedTo = r['Assigned Reviewer'] || '';
-    if (assignedTo !== reviewerName) continue;
     var d2 = tryParse(r['Submission JSON']);
     var appId = (d2 && d2.application_id) ? d2.application_id : r['ID'];
     if (!scoredIds[appId]) pending.push(r);
@@ -270,25 +262,23 @@ function renderDone() {
 }
 
 function launchScoring(recordId) {
-  // Find the real record - skip ghost records (empty Submission JSON)
   var rec = null;
   for (var i = 0; i < allApps.length; i++) {
-    var candidate = allApps[i];
-    if ((candidate['ID']||candidate.id) === recordId && candidate['Submission JSON']) {
-      rec = candidate; break;
-    }
-  }
-  // Fallback: find by ID even without Submission JSON
-  if (!rec) {
-    for (var i = 0; i < allApps.length; i++) {
-      if ((allApps[i]['ID']||allApps[i].id) === recordId) { rec = allApps[i]; break; }
-    }
+    if ((allApps[i]['ID']||allApps[i].id) === recordId) { rec = allApps[i]; break; }
   }
   if (!rec) { showToast('Application not found'); return; }
 
-  var submissionJSON = rec['Submission JSON'] || rec['submission_json'] || '';
+  // Log all available keys so we can debug field names
+  console.log('launchScoring record keys:', Object.keys(rec));
+  console.log('launchScoring rec (first 500):', JSON.stringify(rec).substring(0, 500));
+
+  // Try multiple possible field name variants for Submission JSON
+  var submissionJSON = rec['Submission JSON'] || rec['submission_json'] 
+    || rec['SubmissionJSON'] || rec['Submission_JSON'] || '';
+
+  // If still empty, build a minimal stub so the scoring tool still opens
   if (!submissionJSON) {
-    // Build minimal stub from available flat fields
+    console.warn('Submission JSON not found in record - using stub. Keys:', Object.keys(rec));
     submissionJSON = JSON.stringify({
       agencyname: rec['Clinic Name'] || '',
       applicationtype: rec['Application Type'] || '',
@@ -298,7 +288,15 @@ function launchScoring(recordId) {
   }
 
   localStorage.setItem(LAUNCH_KEY, submissionJSON);
-  // NOTE: Do NOT call updateField here - GAS only supports INSERT, calling it creates ghost records
+
+  var current = (rec['Status'] || '').toLowerCase();
+  if (current.indexOf('review') === -1) {
+    fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type':'text/plain' },
+      body: JSON.stringify({ sheetType: 'Applications', id: rec['ID']||recordId, fields: { 'Status': 'Under Review' } })
+    }).catch(function() {});
+  }
   showToast('Opening scoring tool...');
   setTimeout(function() { window.open(SCORING_URL, '_blank'); }, 600);
 }
