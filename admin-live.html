@@ -151,11 +151,8 @@ let allApps=[],allNAs=[],allScores=[];
 
 async function atFetch(table){
   const sheetType=sheetTypeFromTable(table);
-  const r=await fetch(GOOGLE_SCRIPT_URL,{
-    method:'POST',
-    headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({sheetType:sheetType,action:'GET_RECORDS',pageSize:200})
-  });
+  const url=GOOGLE_SCRIPT_URL+'?sheetType='+encodeURIComponent(sheetType)+'&pageSize=200';
+  const r=await fetch(url);
   const d=await r.json();
   return d.records||[];
 }
@@ -283,7 +280,7 @@ function statusBadge(val,type){
 async function updateField(table,id,field,value){
   try{
     await fetch(GOOGLE_SCRIPT_URL,{
-      method:'POST',headers:{'Content-Type':'text/plain'},
+      method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({sheetType:sheetTypeFromTable(table),id,fields:{[field]:value}})});
     toast('✅ Saved');
   }catch(e){toast('❌ Save failed: '+e.message);}
