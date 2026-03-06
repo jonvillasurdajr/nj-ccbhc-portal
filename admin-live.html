@@ -149,36 +149,40 @@ const GOOGLE_SCRIPT_URL='https://script.google.com/macros/s/AKfycbyxVkIFhA0i1pff
 function sheetTypeFromTable(table){ return table==='Applications'?'Applications':table==='Needs Assessment'?'NeedsAssessments':'Scores'; }
 let allApps=[],allNAs=[],allScores=[];
 
-async function atFetch(table){
-  let records=[],offset=null;
-  const sheetType=sheetTypeFromTable(table);
-  do{
-    const r=await fetch(GOOGLE_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({sheetType,pageSize:100,offset:offset||undefined})});
+async function atFetch(sheetType){
+  try{
+    const r=await fetch(GOOGLE_SCRIPT_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({sheetType,pageSize:200})
+    });
     const d=await r.json();
-    if(d.records) records=[...records,...d.records.filter(r=>r&&r.fields)];
-    offset=d.offset||null;
-  }while(offset);
-  return records;
+    console.log('atFetch',sheetType,d.records?d.records.length+' records':'no records',JSON.stringify(d).substring(0,200));
+    return d.records||[];
+  }catch(e){
+    console.error('atFetch failed for',sheetType,e);
+    return[];
+  }
 }
 
 async function loadAll(){
-  try{
-    [allApps,allNAs,allScores]=await Promise.all([
-      atFetch('Applications'),
-      atFetch('Needs Assessment'),
-      atFetch('Scores')
-    ]);
-    renderOverview();renderApps();renderNAs();renderScores();
-  }catch(e){toast('❌ Failed to load data: '+e.message);console.error(e);}
+  allApps=await atFetch('Applications');
+  allNAs=await atFetch('NeedsAssessments');
+  allScores=await atFetch('Scores');
+  console.log('Loaded:',allApps.length,'apps,',allNAs.length,'NAs,',allScores.length,'scores');
+  if(allApps.length===0&&allNAs.length===0&&allScores.length===0){
+    toast('⚠️ No data returned — check console for details');
+  }
+  renderOverview();renderApps();renderNAs();renderScores();
 }
 
 function renderOverview(){
   // Stats
   const submitted=allApps.length;
-  const underReview=allApps.filter(r=>((r.fields||{})['Status']||'').toLowerCase().includes('review')).length;
-  const fullCert=allScores.filter(r=>((r.fields||{})['Cert Status']||'')==='Full').length;
-  const provCert=allScores.filter(r=>((r.fields||{})['Cert Status']||'')==='Provisional').length;
-  const avgScore=allScores.length?Math.round(allScores.reduce((s,r)=>s+((r.fields||{})['Overall Score']||0),0)/allScores.length):0;
+  const underReview=allApps.filter(r=>(r.fields['Status']||'').toLowerCase().includes('review')).length;
+  const fullCert=allScores.filter(r=>(r.fields['Cert Status']||'')==='Full').length;
+  const provCert=allScores.filter(r=>(r.fields['Cert Status']||'')==='Provisional').length;
+  const avgScore=allScores.length?Math.round(allScores.reduce((s,r)=>s+(r.fields['Overall Score']||0),0)/allScores.length):0;
 
   document.getElementById('overview-stats').innerHTML=`
     <div class="stat-card info"><div class="sc-num">${submitted}</div><div class="sc-label">Applications Submitted</div></div>
@@ -210,7 +214,7 @@ function renderApps(){
   document.getElementById('app-table').innerHTML=allApps.length?`<table id="app-table-el">
     <thead><tr><th>Clinic Name</th><th>App Type</th><th>Submitted</th><th>Status</th><th>Assigned Reviewer</th><th>Actions</th></tr></thead>
     <tbody>${allApps.map(r=>{
-      const f=r.fields;
+      const f=r.fields||{};
       const appData=f['Submission JSON']?tryParse(f['Submission JSON']):{};
       return`<tr data-search="${(f['Clinic Name']||'').toLowerCase()}">
         <td style="font-weight:600">${f['Clinic Name']||'—'}</td>
@@ -235,7 +239,7 @@ function renderNAs(){
   document.getElementById('na-table').innerHTML=allNAs.length?`<table id="na-table-el">
     <thead><tr><th>Clinic Name</th><th>Assessment Date</th><th>App Type</th><th>Status</th><th>Actions</th></tr></thead>
     <tbody>${allNAs.map(r=>{
-      const f=r.fields;
+      const f=r.fields||{};
       return`<tr data-search="${(f['Clinic Name']||f['na_agency_name']||'').toLowerCase()}">
         <td style="font-weight:600">${f['Clinic Name']||f['na_agency_name']||'—'}</td>
         <td>${f['Submitted At']||f['na_assessment_date']?new Date(f['Submitted At']||f['na_assessment_date']).toLocaleDateString():'—'}</td>
@@ -252,7 +256,7 @@ function renderScores(){
   document.getElementById('sc-table').innerHTML=allScores.length?`<table id="sc-table-el">
     <thead><tr><th>Clinic Name</th><th>Reviewer</th><th>Review Date</th><th>Overall Score</th><th>Cert Status</th><th>Actions</th></tr></thead>
     <tbody>${allScores.map(r=>{
-      const f=r.fields;
+      const f=r.fields||{};
       const pct=f['Overall Score']||0;
       const barClass=pct>=80?'bar-ok':pct>=65?'bar-warn':'bar-fail';
       return`<tr data-search="${((f['Clinic Name']||'')+(f['Reviewer']||'')).toLowerCase()}">
@@ -283,7 +287,7 @@ function statusBadge(val,type){
 async function updateField(table,id,field,value){
   try{
     await fetch(GOOGLE_SCRIPT_URL,{
-      method:'POST',headers:{'Content-Type':'text/plain'},
+      method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({sheetType:sheetTypeFromTable(table),id,fields:{[field]:value}})});
     toast('✅ Saved');
   }catch(e){toast('❌ Save failed: '+e.message);}
