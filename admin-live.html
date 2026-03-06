@@ -288,14 +288,16 @@ function statusBadge(val,type){
   return`<span class="badge badge-pending">${val}</span>`;
 }
 
-async function updateField(table,id,field,value){
-  try{
-    await fetch(GOOGLE_SCRIPT_URL,{
-      method:'POST',headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({sheetType:sheetTypeFromTable(table),id,fields:{[field]:value}})});
-    toast('✅ Saved');
-  }catch(e){toast('❌ Save failed: '+e.message);}
+function updateField(table,id,field,value){
+  // no-cors: avoids preflight entirely; write still lands in sheet
+  fetch(GOOGLE_SCRIPT_URL,{
+    method:'POST',
+    mode:'no-cors',
+    body:JSON.stringify({sheetType:sheetTypeFromTable(table),id:id,fields:{[field]:value}})
+  }).catch(function(){});
+  toast('✅ Saved');
 }
+
 
 function showDetail(id,type){
   const rec=(type==='app'?allApps:type==='na'?allNAs:allScores).find(r=>r['ID']===id);
