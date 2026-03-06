@@ -147,15 +147,18 @@ function showQueue() {
 
 function atGet(table, filter, callback) {
   var sheetType = table === 'Scores' ? 'Scores' : 'Applications';
-  fetch(GOOGLE_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ sheetType: sheetType, filterByFormula: filter, pageSize: 100 })
-  })
-    .then(function(r) { return r.json(); })
-    .then(function(d) { callback(null, d.records || []); })
-    .catch(function(e) { callback(e, []); });
+  var cbName = '_cb' + Date.now() + '_' + Math.random().toString(36).slice(2);
+  var s = document.createElement('script');
+  window[cbName] = function(d) {
+    delete window[cbName];
+    if (s.parentNode) s.parentNode.removeChild(s);
+    callback(null, d.records || []);
+  };
+  s.onerror = function() { delete window[cbName]; callback(new Error('Load failed'), []); };
+  s.src = GOOGLE_SCRIPT_URL + '?sheetType=' + encodeURIComponent(sheetType) + '&pageSize=200&callback=' + cbName;
+  document.head.appendChild(s);
 }
+
 
 function loadQueue() {
   document.getElementById('queue-list').innerHTML = '<div class="loading">Fetching your assigned applications...</div>';
@@ -225,7 +228,7 @@ function renderQueue() {
       '<div class="card-info">' +
       '<div class="card-name">' + (f['Clinic Name'] || 'Unnamed Clinic') + '</div>' +
       '<div class="card-meta">' +
-      '<span>Submitted: ' + (f['Submission Date'] || '--') + '</span>' +
+      '<span>Submitted: ' + (f['Submitted At'] || '--') + '</span>' +
       '<span>' + (f['Application Type'] || 'Initial') + '</span>' +
       badge + '</div></div>' + btn + '</div>';
   }
