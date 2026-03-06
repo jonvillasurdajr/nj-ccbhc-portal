@@ -149,25 +149,36 @@ const GOOGLE_SCRIPT_URL='https://script.google.com/macros/s/AKfycbyxVkIFhA0i1pff
 function sheetTypeFromTable(table){ return table==='Applications'?'Applications':table==='Needs Assessment'?'NeedsAssessments':'Scores'; }
 let allApps=[],allNAs=[],allScores=[];
 
-async function atFetch(table){
-  const sheetType=sheetTypeFromTable(table);
-  const url=GOOGLE_SCRIPT_URL+'?sheetType='+encodeURIComponent(sheetType)+'&pageSize=200';
-  const r=await fetch(url);
-  const d=await r.json();
-  return d.records||[];
+function atFetch(table){
+  return new Promise(function(resolve,reject){
+    var sheetType=sheetTypeFromTable(table);
+    var cbName='_cb'+Date.now()+'_'+Math.random().toString(36).slice(2);
+    var s=document.createElement('script');
+    var done=false;
+    var timeout=setTimeout(function(){if(!done){done=true;delete window[cbName];if(s.parentNode)s.parentNode.removeChild(s);resolve([]);}},10000);
+    window[cbName]=function(d){
+      if(done)return; done=true; clearTimeout(timeout);
+      delete window[cbName];if(s.parentNode)s.parentNode.removeChild(s);
+      resolve(d.records||[]);
+    };
+    s.onerror=function(){if(!done){done=true;clearTimeout(timeout);delete window[cbName];resolve([]);}};
+    s.src=GOOGLE_SCRIPT_URL+'?sheetType='+encodeURIComponent(sheetType)+'&pageSize=200&callback='+cbName;
+    document.head.appendChild(s);
+  });
 }
 
 
 async function loadAll(){
   try{
     [allApps,allNAs,allScores]=await Promise.all([
-      atFetch('Applications'),
-      atFetch('Needs Assessment'),
-      atFetch('Scores')
+      atFetch('Applications').catch(function(){return[];}),
+      atFetch('Needs Assessment').catch(function(){return[];}),
+      atFetch('Scores').catch(function(){return[];})
     ]);
     renderOverview();renderApps();renderNAs();renderScores();
-  }catch(e){toast('❌ Failed to load data: '+e.message);console.error(e);}
+  }catch(e){toast('❌ Failed to load: '+e.message);console.error(e);}
 }
+
 
 function renderOverview(){
   // Stats
@@ -280,7 +291,7 @@ function statusBadge(val,type){
 async function updateField(table,id,field,value){
   try{
     await fetch(GOOGLE_SCRIPT_URL,{
-      method:'POST',headers:{'Content-Type':'application/json'},
+      method:'POST',headers:{'Content-Type':'text/plain'},
       body:JSON.stringify({sheetType:sheetTypeFromTable(table),id,fields:{[field]:value}})});
     toast('✅ Saved');
   }catch(e){toast('❌ Save failed: '+e.message);}
