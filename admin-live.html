@@ -149,27 +149,28 @@ const GOOGLE_SCRIPT_URL='https://script.google.com/macros/s/AKfycbyxVkIFhA0i1pff
 function sheetTypeFromTable(table){ return table==='Applications'?'Applications':table==='Needs Assessment'?'NeedsAssessments':'Scores'; }
 let allApps=[],allNAs=[],allScores=[];
 
-async function atFetch(table){
-  let records=[],offset=null;
-  const sheetType=sheetTypeFromTable(table);
-  do{
-    const r=await fetch(GOOGLE_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sheetType,pageSize:100,offset:offset||undefined})});
+async function atFetch(sheetType){
+  try{
+    const r=await fetch(GOOGLE_SCRIPT_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({sheetType,pageSize:200})
+    });
     const d=await r.json();
-    if(d.records) records=[...records,...d.records];
-    offset=d.offset||null;
-  }while(offset);
-  return records;
+    console.log('atFetch',sheetType,d.records?d.records.length+' records':'no records');
+    return d.records||[];
+  }catch(e){
+    console.error('atFetch failed',sheetType,e.message);
+    return[];
+  }
 }
 
 async function loadAll(){
-  try{
-    [allApps,allNAs,allScores]=await Promise.all([
-      atFetch('Applications'),
-      atFetch('Needs Assessment'),
-      atFetch('Scores')
-    ]);
-    renderOverview();renderApps();renderNAs();renderScores();
-  }catch(e){toast('❌ Failed to load data: '+e.message);console.error(e);}
+  allApps=await atFetch('Applications');
+  allNAs=await atFetch('NeedsAssessments');
+  allScores=await atFetch('Scores');
+  console.log('Loaded:',allApps.length,'apps',allNAs.length,'NAs',allScores.length,'scores');
+  renderOverview();renderApps();renderNAs();renderScores();
 }
 
 function renderOverview(){
@@ -283,7 +284,7 @@ function statusBadge(val,type){
 async function updateField(table,id,field,value){
   try{
     await fetch(GOOGLE_SCRIPT_URL,{
-      method:'POST',headers:{'Content-Type':'application/json'},
+      method:'POST',headers:{'Content-Type':'text/plain'},
       body:JSON.stringify({sheetType:sheetTypeFromTable(table),id,fields:{[field]:value}})});
     toast('✅ Saved');
   }catch(e){toast('❌ Save failed: '+e.message);}
