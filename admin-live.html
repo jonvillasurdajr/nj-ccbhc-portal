@@ -151,7 +151,11 @@ let allApps=[],allNAs=[],allScores=[];
 
 async function atFetch(table){
   const sheetType=sheetTypeFromTable(table);
-  const r=await fetch(GOOGLE_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({sheetType:sheetType,action:'GET_RECORDS',pageSize:200})});
+  const r=await fetch(GOOGLE_SCRIPT_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({sheetType:sheetType,action:'GET_RECORDS',pageSize:200})
+  });
   const d=await r.json();
   return d.records||[];
 }
@@ -288,7 +292,7 @@ async function updateField(table,id,field,value){
 function showDetail(id,type){
   const rec=(type==='app'?allApps:type==='na'?allNAs:allScores).find(r=>r['ID']===id);
   if(!rec)return;
-  const f=rec.fields;
+  const f=rec;
   const title=(f['Clinic Name']||f['na_agency_name']||'Record')+' — '+(type==='app'?'Application':type==='na'?'Needs Assessment':'Score Review');
   let html='';
   if(type==='score'){
