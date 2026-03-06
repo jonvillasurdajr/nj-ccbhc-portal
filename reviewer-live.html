@@ -150,27 +150,29 @@ function atGet(table, filter, callback) {
   var cbName = '_cb' + Date.now() + '_' + Math.random().toString(36).slice(2);
   var s = document.createElement('script');
   var done = false;
-  var timeout = setTimeout(function(){ if(!done){ done=true; delete window[cbName]; if(s.parentNode)s.parentNode.removeChild(s); callback(null,[]); } }, 10000);
+  var timeout = setTimeout(function(){ if(!done){ done=true; delete window[cbName]; if(s.parentNode)s.parentNode.removeChild(s); callback(null,[]); }}, 10000);
   window[cbName] = function(d) {
-    if(done) rfunction loadQueue() {
+    if(done) return; done=true; clearTimeout(timeout);
+    delete window[cbName]; if(s.parentNode) s.parentNode.removeChild(s);
+    callback(null, d.records || []);
+  };
+  s.onerror = function(){ if(!done){ done=true; clearTimeout(timeout); delete window[cbName]; callback(null,[]); }};
+  s.src = GOOGLE_SCRIPT_URL + '?sheetType=' + encodeURIComponent(sheetType) + '&pageSize=200&callback=' + cbName;
+  document.head.appendChild(s);
+}
+
+
+function loadQueue() {
   document.getElementById('queue-list').innerHTML = '<div class="loading">Fetching your assigned applications...</div>';
   document.getElementById('done-list').innerHTML = '<div class="loading">Fetching your completed reviews...</div>';
-
   atGet('Applications', null, function(err1, apps) {
-    if (err1) {
-      document.getElementById('queue-list').innerHTML = '<div class="empty"><p style="color:red">Failed to load: ' + err1.message + '</p></div>';
-      return;
-    }
+    if (err1) { document.getElementById('queue-list').innerHTML = '<div class="empty"><p style="color:red">Failed to load.</p></div>'; return; }
     // Filter client-side by Assigned Reviewer
     allApps = apps.filter(function(r) {
       return (r['Assigned Reviewer'] || '').toLowerCase() === reviewerName.toLowerCase();
     });
     atGet('Scores', null, function(err2, scores) {
-      if (err2) {
-        document.getElementById('done-list').innerHTML = '<div class="empty"><p style="color:red">Failed to load: ' + err2.message + '</p></div>';
-        return;
-      }
-      // Filter scores by reviewer name
+      if (err2) { document.getElementById('done-list').innerHTML = '<div class="empty"><p style="color:red">Failed to load.</p></div>'; return; }
       allScores = scores.filter(function(r) {
         return (r['Reviewer Name'] || r['Reviewer'] || '').toLowerCase() === reviewerName.toLowerCase();
       });
@@ -179,21 +181,7 @@ function atGet(table, filter, callback) {
     });
   });
 }
-ty"><p style="color:red">Failed to load: ' + err1.message + '</p></div>';
-      return;
-    }
-    allApps = apps;
-    atGet('Scores', scoresFilter, function(err2, scores) {
-      if (err2) {
-        document.getElementById('done-list').innerHTML = '<div class="empty"><p style="color:red">Failed to load: ' + err2.message + '</p></div>';
-        return;
-      }
-      allScores = scores;
-      renderQueue();
-      renderDone();
-    });
-  });
-}
+
 
 function tryParse(s) {
   try { return JSON.parse(s); } catch(e) { return {}; }
@@ -202,7 +190,7 @@ function tryParse(s) {
 function renderQueue() {
   var scoredIds = {};
   for (var i = 0; i < allScores.length; i++) {
-    var d = tryParse(allScores[i].fields['Score JSON']);
+    var d = tryParse(allScores[i]['Score JSON']);
     var id = (d && d.applicant && d.applicant.id) ? d.applicant.id : '';
     if (id) scoredIds[id] = true;
   }
@@ -211,7 +199,7 @@ function renderQueue() {
   for (var j = 0; j < allApps.length; j++) {
     var r = allApps[j];
     var d2 = tryParse(r['Submission JSON']);
-    var appId = (d2 && d2.application_id) ? d2.application_id : r['ID'];
+    var appId = (d2 && d2.application_id) ? d2.application_id : r.id;
     if (!scoredIds[appId]) pending.push(r);
   }
 
@@ -227,18 +215,18 @@ function renderQueue() {
     var rec = pending[k];
     var f = rec.fields;
     var appData = tryParse(f['Submission JSON']);
-    var recId = (appData && appData.application_id) ? appData.application_id : rec.id;
+    var recId = (appData && appData.application_id) ? appData.application_id : rec['ID'];
     var inProg = !!localStorage.getItem('ccbhc_draft_' + recId);
     var cls = inProg ? 'in-progress' : 'not-started';
     var badge = inProg ? '<span class="badge b-prog">In Progress</span>' : '<span class="badge b-new">Not Started</span>';
     var btn = inProg
-      ? '<button class="btn btn-resume" onclick="launchScoring(\'' + rec.id + '\')">Resume &#8594;</button>'
-      : '<button class="btn btn-start" onclick="launchScoring(\'' + rec.id + '\')">Begin Review &#8594;</button>';
+      ? '<button class="btn btn-resume" onclick="launchScoring(\'' + rec['ID'] + '\')">Resume &#8594;</button>'
+      : '<button class="btn btn-start" onclick="launchScoring(\'' + rec['ID'] + '\')">Begin Review &#8594;</button>';
     html += '<div class="app-card ' + cls + '">' +
       '<div class="card-info">' +
       '<div class="card-name">' + (f['Clinic Name'] || 'Unnamed Clinic') + '</div>' +
       '<div class="card-meta">' +
-      '<span>Submitted: ' + (f['Submitted At'] || '--') + '</span>' +
+      '<span>Submitted: ' + (f['Submission Date'] || '--') + '</span>' +
       '<span>' + (f['Application Type'] || 'Initial') + '</span>' +
       badge + '</div></div>' + btn + '</div>';
   }
@@ -268,7 +256,7 @@ function renderDone() {
       '<div class="score-name">' + (f['Clinic Name'] || '--') + '</div>' +
       '<div class="score-meta">Status: ' + status + ' &middot; Reviewed: ' + (f['Score Date'] || '--') + '</div>' +
       '</div>' +
-      '<button class="btn btn-view" onclick="viewScore(\'' + s.id + '\')">View &#8594;</button>' +
+      '<button class="btn btn-view" onclick="viewScore(\'' + s['ID'] + '\')">View &#8594;</button>' +
       '</div>';
   }
   document.getElementById('done-list').innerHTML = html;
@@ -280,18 +268,17 @@ function launchScoring(recordId) {
     if (allApps[i].id === recordId) { rec = allApps[i]; break; }
   }
   if (!rec) { showToast('Application not found'); return; }
-  var submissionJSON = rec.fields['Submission JSON'];
+  var submissionJSON = rec['Submission JSON'];
   if (!submissionJSON) { showToast('No application data found'); return; }
   localStorage.setItem(LAUNCH_KEY, submissionJSON);
-  var current = (rec.fields['Status'] || '').toLowerCase();
+  var current = (rec['Status'] || '').toLowerCase();
   if (current.indexOf('review') === -1) {
     (function(){
-      var cbName='_rw'+Date.now();
-      var s=document.createElement('script');
-      window[cbName]=function(){delete window[cbName];if(s.parentNode)s.parentNode.removeChild(s);};
-      s.onerror=function(){delete window[cbName];};
-      s.src=GOOGLE_SCRIPT_URL+'?sheetType=Applications&action=UPDATE&id='+encodeURIComponent(recordId)+'&field=Status&value=Under+Review&callback='+cbName;
-      document.head.appendChild(s);
+      var cbN='_rw'+Date.now(); var sc=document.createElement('script');
+      window[cbN]=function(){delete window[cbN];if(sc.parentNode)sc.parentNode.removeChild(sc);};
+      sc.onerror=function(){delete window[cbN];};
+      sc.src=GOOGLE_SCRIPT_URL+'?sheetType=Applications&action=UPDATE&id='+encodeURIComponent(recordId)+'&field=Status&value=Under+Review&callback='+cbN;
+      document.head.appendChild(sc);
     })();
   }
   showToast('Opening scoring tool...');
@@ -304,7 +291,7 @@ function viewScore(recordId) {
     if (allScores[i].id === recordId) { rec = allScores[i]; break; }
   }
   if (!rec) return;
-  var d = tryParse(rec.fields['Score JSON']);
+  var d = tryParse(rec['Score JSON']);
   alert(JSON.stringify(d && d.criterion_results ? d.criterion_results : d, null, 2).substring(0, 1200) + '...');
 }
 
