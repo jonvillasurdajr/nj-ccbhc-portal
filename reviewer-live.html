@@ -267,15 +267,34 @@ function launchScoring(recordId) {
     if ((allApps[i]['ID']||allApps[i].id) === recordId) { rec = allApps[i]; break; }
   }
   if (!rec) { showToast('Application not found'); return; }
-  var submissionJSON = rec['Submission JSON'];
-  if (!submissionJSON) { showToast('No application data found'); return; }
+
+  // Log all available keys so we can debug field names
+  console.log('launchScoring record keys:', Object.keys(rec));
+  console.log('launchScoring rec (first 500):', JSON.stringify(rec).substring(0, 500));
+
+  // Try multiple possible field name variants for Submission JSON
+  var submissionJSON = rec['Submission JSON'] || rec['submission_json'] 
+    || rec['SubmissionJSON'] || rec['Submission_JSON'] || '';
+
+  // If still empty, build a minimal stub so the scoring tool still opens
+  if (!submissionJSON) {
+    console.warn('Submission JSON not found in record - using stub. Keys:', Object.keys(rec));
+    submissionJSON = JSON.stringify({
+      agencyname: rec['Clinic Name'] || '',
+      applicationtype: rec['Application Type'] || '',
+      applicationid: rec['ID'] || recordId,
+      submissiondate: rec['Submitted At'] || rec['Timestamp'] || ''
+    });
+  }
+
   localStorage.setItem(LAUNCH_KEY, submissionJSON);
+
   var current = (rec['Status'] || '').toLowerCase();
   if (current.indexOf('review') === -1) {
     fetch(GOOGLE_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type':'text/plain' },
-      body: JSON.stringify({ sheetType: 'Applications', id: recordId, fields: { 'Status': 'Under Review' } })
+      body: JSON.stringify({ sheetType: 'Applications', id: rec['ID']||recordId, fields: { 'Status': 'Under Review' } })
     }).catch(function() {});
   }
   showToast('Opening scoring tool...');
