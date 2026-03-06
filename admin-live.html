@@ -155,7 +155,7 @@ async function atFetch(table){
   do{
     const r=await fetch(GOOGLE_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({sheetType,pageSize:100,offset:offset||undefined})});
     const d=await r.json();
-    if(d.records) records=[...records,...d.records];
+    if(d.records) records=[...records,...d.records.filter(r=>r&&r.fields)];
     offset=d.offset||null;
   }while(offset);
   return records;
@@ -175,10 +175,10 @@ async function loadAll(){
 function renderOverview(){
   // Stats
   const submitted=allApps.length;
-  const underReview=allApps.filter(r=>(r.fields['Status']||'').toLowerCase().includes('review')).length;
-  const fullCert=allScores.filter(r=>(r.fields['Cert Status']||'')==='Full').length;
-  const provCert=allScores.filter(r=>(r.fields['Cert Status']||'')==='Provisional').length;
-  const avgScore=allScores.length?Math.round(allScores.reduce((s,r)=>s+(r.fields['Overall Score']||0),0)/allScores.length):0;
+  const underReview=allApps.filter(r=>((r.fields||{})['Status']||'').toLowerCase().includes('review')).length;
+  const fullCert=allScores.filter(r=>((r.fields||{})['Cert Status']||'')==='Full').length;
+  const provCert=allScores.filter(r=>((r.fields||{})['Cert Status']||'')==='Provisional').length;
+  const avgScore=allScores.length?Math.round(allScores.reduce((s,r)=>s+((r.fields||{})['Overall Score']||0),0)/allScores.length):0;
 
   document.getElementById('overview-stats').innerHTML=`
     <div class="stat-card info"><div class="sc-num">${submitted}</div><div class="sc-label">Applications Submitted</div></div>
