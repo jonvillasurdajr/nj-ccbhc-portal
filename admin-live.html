@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CCBHC Certification Portal | NJ DMHAS - Admin</title>
+<title>CCBHC Certification Portal | NJ DMHAS — Admin</title>
 <style>
 :root{--navy:#1e4d8c;--blue2:#2d6abf;--blt:#ebf2fb;--teal:#1a6b5e;--tlt:#e8f6f4;--red:#c0392b;--green:#2d7d46;--amber:#d37f00;--g50:#f7f8fa;--g100:#f0f2f5;--g200:#e1e5eb;--g400:#9ba7b8;--g500:#6b7a8d;--g700:#2e3a4a;--r:8px}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -84,7 +84,7 @@ tr:last-child td{border-bottom:none}
 <body>
 <header><div class="hi">
   <div class="ho">New Jersey DMHAS · CCBHC Certification Program</div>
-  <h1>Certification Portal - Admin Dashboard</h1>
+  <h1>Certification Portal — Admin Dashboard</h1>
   <p class="hs">Certification Year 2026 · Staff Use Only</p>
 </div></header>
 
@@ -98,39 +98,39 @@ tr:last-child td{border-bottom:none}
 <main>
 <!-- OVERVIEW -->
 <div id="tab-overview" class="tab-panel active">
-  <div class="stat-grid" id="overview-stats"><div class="loading">Loading data...</div></div>
+  <div class="stat-grid" id="overview-stats"><div class="loading">Loading data…</div></div>
   <div class="sh"><h2>Recent Activity</h2></div>
-  <div class="tbl-wrap"><div id="overview-recent"><div class="loading">Loading...</div></div></div>
+  <div class="tbl-wrap"><div id="overview-recent"><div class="loading">Loading…</div></div></div>
 </div>
 
 <!-- APPLICATIONS -->
 <div id="tab-applications" class="tab-panel">
   <div class="top-bar">
-    <input class="search-input" type="text" id="app-search" placeholder="Search clinic name..." oninput="filterTable('app-table',this.value)">
+    <input class="search-input" type="text" id="app-search" placeholder="Search clinic name…" oninput="filterTable('app-table',this.value)">
     <button class="btn btn-outline btn-sm" onclick="exportCSV('app-table','Applications')">⬇ Export CSV</button>
     <div class="refresh-btn"><button class="btn btn-navy btn-sm" onclick="loadAll()">↻ Refresh</button></div>
   </div>
-  <div class="tbl-wrap"><div id="app-table"><div class="loading">Loading applications...</div></div></div>
+  <div class="tbl-wrap"><div id="app-table"><div class="loading">Loading applications…</div></div></div>
 </div>
 
 <!-- NEEDS ASSESSMENTS -->
 <div id="tab-assessments" class="tab-panel">
   <div class="top-bar">
-    <input class="search-input" type="text" id="na-search" placeholder="Search clinic name..." oninput="filterTable('na-table',this.value)">
+    <input class="search-input" type="text" id="na-search" placeholder="Search clinic name…" oninput="filterTable('na-table',this.value)">
     <button class="btn btn-outline btn-sm" onclick="exportCSV('na-table','NeedsAssessments')">⬇ Export CSV</button>
     <div class="refresh-btn"><button class="btn btn-navy btn-sm" onclick="loadAll()">↻ Refresh</button></div>
   </div>
-  <div class="tbl-wrap"><div id="na-table"><div class="loading">Loading needs assessments...</div></div></div>
+  <div class="tbl-wrap"><div id="na-table"><div class="loading">Loading needs assessments…</div></div></div>
 </div>
 
 <!-- SCORES -->
 <div id="tab-scores" class="tab-panel">
   <div class="top-bar">
-    <input class="search-input" type="text" id="sc-search" placeholder="Search clinic or reviewer..." oninput="filterTable('sc-table',this.value)">
+    <input class="search-input" type="text" id="sc-search" placeholder="Search clinic or reviewer…" oninput="filterTable('sc-table',this.value)">
     <button class="btn btn-outline btn-sm" onclick="exportCSV('sc-table','ScoreReviews')">⬇ Export CSV</button>
     <div class="refresh-btn"><button class="btn btn-navy btn-sm" onclick="loadAll()">↻ Refresh</button></div>
   </div>
-  <div class="tbl-wrap"><div id="sc-table"><div class="loading">Loading score reviews...</div></div></div>
+  <div class="tbl-wrap"><div id="sc-table"><div class="loading">Loading score reviews…</div></div></div>
 </div>
 </main>
 
@@ -151,11 +151,7 @@ let allApps=[],allNAs=[],allScores=[];
 
 async function atFetch(table){
   const sheetType=sheetTypeFromTable(table);
-  const r=await fetch(GOOGLE_SCRIPT_URL,{
-    method:'POST',
-    headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({sheetType:sheetType,action:'GET_RECORDS',pageSize:200})
-  });
+  const r=await fetch(GOOGLE_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({sheetType:sheetType,action:'GET_RECORDS',pageSize:200})});
   const d=await r.json();
   return d.records||[];
 }
@@ -186,14 +182,14 @@ function renderOverview(){
     <div class="stat-card info"><div class="sc-num">${allScores.length}</div><div class="sc-label">Reviews Completed</div></div>
     <div class="stat-card ok"><div class="sc-num">${fullCert}</div><div class="sc-label">Full Certifications</div></div>
     <div class="stat-card warn"><div class="sc-num">${provCert}</div><div class="sc-label">Provisional Certs</div></div>
-    <div class="stat-card ${avgScore>=80?'ok':avgScore>=65?'warn':'info'}"><div class="sc-num">${avgScore||'-'}${avgScore?'%':''}</div><div class="sc-label">Avg Review Score</div></div>
+    <div class="stat-card ${avgScore>=80?'ok':avgScore>=65?'warn':'info'}"><div class="sc-num">${avgScore||'—'}${avgScore?'%':''}</div><div class="sc-label">Avg Review Score</div></div>
   `;
 
-  // Recent activity - last 10 combined
+  // Recent activity — last 10 combined
   const all=[
     ...allApps.map(r=>{return{name:r['Clinic Name']||'Unknown',date:r['Submitted At']||'',type:'Application',status:r['Status']||'Submitted',id:r['ID']}}),
     ...allNAs.map(r=>{return{name:r['Clinic Name']||r['na_agency_name']||'Unknown',date:r['Submitted At']||r['na_assessment_date']||'',type:'Needs Assessment',status:r['Status']||'Submitted',id:r['ID']}}),
-    ...allScores.map(r=>{return{name:r['Clinic Name']||'Unknown',date:r['Review Date']||'',type:'Score Review',status:r['Cert Status']||'-',id:r['ID']}})
+    ...allScores.map(r=>{return{name:r['Clinic Name']||'Unknown',date:r['Review Date']||'',type:'Score Review',status:r['Cert Status']||'—',id:r['ID']}})
   ].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,10);
 
   document.getElementById('overview-recent').innerHTML=all.length?`<table>
@@ -201,7 +197,7 @@ function renderOverview(){
     <tbody>${all.map(r=>`<tr>
       <td style="font-weight:600">${r.name}</td>
       <td>${r.type}</td>
-      <td>${r.date?new Date(r.date).toLocaleDateString():'-'}</td>
+      <td>${r.date?new Date(r.date).toLocaleDateString():'—'}</td>
       <td>${statusBadge(r.status,r.type)}</td>
     </tr>`).join('')}</tbody></table>`:'<div class="empty">No activity yet.</div>';
 }
@@ -213,14 +209,14 @@ function renderApps(){
       const f=r;
       const appData=f['Submission JSON']?tryParse(f['Submission JSON']):{};
       return`<tr data-search="${(f['Clinic Name']||'').toLowerCase()}">
-        <td style="font-weight:600">${f['Clinic Name']||'-'}</td>
-        <td>${appData.application_type||'-'}</td>
-        <td>${f['Submitted At']?new Date(f['Submitted At']).toLocaleDateString():'-'}</td>
+        <td style="font-weight:600">${f['Clinic Name']||'—'}</td>
+        <td>${appData.application_type||'—'}</td>
+        <td>${f['Submitted At']?new Date(f['Submitted At']).toLocaleDateString():'—'}</td>
         <td><select class="st-select" onchange="updateField('Applications','${r['ID']}','Status',this.value)">
           ${['Submitted','Under Review','Desk Review Complete','Site Visit Scheduled','Certified','Not Certified'].map(s=>`<option${(f['Status']||'')==s?' selected':''}>${s}</option>`).join('')}
         </select></td>
         <td><select class="rv-input" onchange="updateField('Applications','${r['ID']}','Assigned Reviewer',this.value)">
-          <option value="">- Unassigned -</option>
+          <option value="">— Unassigned —</option>
           <option value="Marie Verna" ${f['Assigned Reviewer']==='Marie Verna'?'selected':''}>Marie Verna (DMHAS)</option>
           <option value="Vicki Fresolone" ${f['Assigned Reviewer']==='Vicki Fresolone'?'selected':''}>Vicki Fresolone (DMHAS)</option>
           <option value="Laura Henry" ${f['Assigned Reviewer']==='Laura Henry'?'selected':''}>Laura Henry (Mercer)</option>
@@ -237,9 +233,9 @@ function renderNAs(){
     <tbody>${allNAs.map(r=>{
       const f=r;
       return`<tr data-search="${(f['Clinic Name']||f['na_agency_name']||'').toLowerCase()}">
-        <td style="font-weight:600">${f['Clinic Name']||f['na_agency_name']||'-'}</td>
-        <td>${f['Submitted At']||f['na_assessment_date']?new Date(f['Submitted At']||f['na_assessment_date']).toLocaleDateString():'-'}</td>
-        <td>${f['na_app_type']||'-'}</td>
+        <td style="font-weight:600">${f['Clinic Name']||f['na_agency_name']||'—'}</td>
+        <td>${f['Submitted At']||f['na_assessment_date']?new Date(f['Submitted At']||f['na_assessment_date']).toLocaleDateString():'—'}</td>
+        <td>${f['na_app_type']||'—'}</td>
         <td><select class="st-select" onchange="updateField('Needs Assessment','${r['ID']}','Status',this.value)">
           ${['Submitted','Under Review','Accepted','Revision Requested'].map(s=>`<option${(f['Status']||'')==s?' selected':''}>${s}</option>`).join('')}
         </select></td>
@@ -256,21 +252,21 @@ function renderScores(){
       const pct=f['Overall Score']||0;
       const barClass=pct>=80?'bar-ok':pct>=65?'bar-warn':'bar-fail';
       return`<tr data-search="${((f['Clinic Name']||'')+(f['Reviewer']||'')).toLowerCase()}">
-        <td style="font-weight:600">${f['Clinic Name']||'-'}</td>
-        <td>${f['Reviewer']||'-'}</td>
-        <td>${f['Review Date']?new Date(f['Review Date']).toLocaleDateString():'-'}</td>
+        <td style="font-weight:600">${f['Clinic Name']||'—'}</td>
+        <td>${f['Reviewer']||'—'}</td>
+        <td>${f['Review Date']?new Date(f['Review Date']).toLocaleDateString():'—'}</td>
         <td><div class="score-bar">
           <div class="bar-track"><div class="bar-fill ${barClass}" style="width:${pct}%"></div></div>
           <span style="font-weight:700;color:var(--g700)">${pct}%</span>
         </div></td>
-        <td>${statusBadge(f['Cert Status']||'-','score')}</td>
+        <td>${statusBadge(f['Cert Status']||'—','score')}</td>
         <td><button class="btn btn-navy btn-sm" onclick="showDetail('${r['ID']}','score')">Detail</button></td>
       </tr>`;
     }).join('')}</tbody></table>`:'<div class="empty">No score reviews recorded yet.</div>';
 }
 
 function statusBadge(val,type){
-  if(!val||val==='-')return`<span class="badge badge-pending">-</span>`;
+  if(!val||val==='—')return`<span class="badge badge-pending">—</span>`;
   const v=val.toLowerCase();
   if(v.includes('full')||v.includes('certified')&&!v.includes('not'))return`<span class="badge badge-full">✓ ${val}</span>`;
   if(v.includes('provisional'))return`<span class="badge badge-prov">⚠ ${val}</span>`;
@@ -283,7 +279,7 @@ function statusBadge(val,type){
 async function updateField(table,id,field,value){
   try{
     await fetch(GOOGLE_SCRIPT_URL,{
-      method:'POST',headers:{'Content-Type':'application/json'},
+      method:'POST',headers:{'Content-Type':'text/plain'},
       body:JSON.stringify({sheetType:sheetTypeFromTable(table),id,fields:{[field]:value}})});
     toast('✅ Saved');
   }catch(e){toast('❌ Save failed: '+e.message);}
@@ -293,24 +289,24 @@ function showDetail(id,type){
   const rec=(type==='app'?allApps:type==='na'?allNAs:allScores).find(r=>r['ID']===id);
   if(!rec)return;
   const f=rec.fields;
-  const title=(f['Clinic Name']||f['na_agency_name']||'Record')+' - '+(type==='app'?'Application':type==='na'?'Needs Assessment':'Score Review');
+  const title=(f['Clinic Name']||f['na_agency_name']||'Record')+' — '+(type==='app'?'Application':type==='na'?'Needs Assessment':'Score Review');
   let html='';
   if(type==='score'){
     const scoreData=f['Score JSON']?tryParse(f['Score JSON']):{};
     html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-      <div><strong>Overall Score:</strong> ${f['Overall Score']||'-'}%</div>
-      <div><strong>Cert Status:</strong> ${f['Cert Status']||'-'}</div>
-      <div><strong>Reviewer:</strong> ${f['Reviewer']||'-'}</div>
-      <div><strong>Review Date:</strong> ${f['Review Date']||'-'}</div>
+      <div><strong>Overall Score:</strong> ${f['Overall Score']||'—'}%</div>
+      <div><strong>Cert Status:</strong> ${f['Cert Status']||'—'}</div>
+      <div><strong>Reviewer:</strong> ${f['Reviewer']||'—'}</div>
+      <div><strong>Review Date:</strong> ${f['Review Date']||'—'}</div>
     </div>
     <pre>${JSON.stringify(scoreData,null,2)}</pre>`;
   }else if(type==='app'){
     const appData=f['Submission JSON']?tryParse(f['Submission JSON']):{};
     html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-      <div><strong>NPI:</strong> ${appData.agency_npi||'-'}</div>
-      <div><strong>App Type:</strong> ${appData.application_type||'-'}</div>
-      <div><strong>Auth. Rep:</strong> ${appData.auth_rep_name||'-'}</div>
-      <div><strong>Submitted:</strong> ${f['Submitted At']||'-'}</div>
+      <div><strong>NPI:</strong> ${appData.agency_npi||'—'}</div>
+      <div><strong>App Type:</strong> ${appData.application_type||'—'}</div>
+      <div><strong>Auth. Rep:</strong> ${appData.auth_rep_name||'—'}</div>
+      <div><strong>Submitted:</strong> ${f['Submitted At']||'—'}</div>
     </div><pre>${JSON.stringify(appData,null,2)}</pre>`;
   }else{
     html=`<pre>${JSON.stringify(f,null,2)}</pre>`;
